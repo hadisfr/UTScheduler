@@ -1,0 +1,99 @@
+body > .container {
+    height: calc(100vh - 32px - 2.5ex);
+    box-shadow: rgba(0, 0, 0, 0.2) 0 0 30px;
+    padding-top: calc(32px + 3em);
+}
+
+#footer {
+    text-align: center;
+    font-size: small;
+    padding: 16px;
+    position: relative;
+    bottom: 0;
+}
+
+#header {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    border-bottom: 5px hsl(180, 17%, 17%) solid;
+}
+
+#header, #footer {
+    background: hsl(180, 17%, 27%);
+    color: white;
+}
+
+#header #logo {
+    height: 3em;
+    margin: -16px;
+}
+
+#header > ul {
+    list-style: none;
+    padding: 0 6px;
+    margin: 0;
+}
+
+#header > ul > li {
+    padding: 0;
+    margin: 0;
+    display: inline-block;
+}
+
+#header > ul > li > a {
+    text-decoration: none;
+    color: inherit;
+    padding: 16px 16px;
+    display: inline-block;
+    /*border-radius: 16px;*/
+}
+
+#header > ul > li > a:hover, #header > ul > li > a.selected {
+    background: hsl(180, 17%, 17%);
+    transition: 0.7s;
+}
+
+table * {
+    text-align: center;
+}
+
+.entry-block {
+    padding: 32px;
+    font-size: 1.5em;
+}
+
+.entry-set {
+    text-align: right;
+}
+
+.msg {
+    background: hsla(0, 33%, 30%, 0.1);
+    border-radius: 16px;
+    color: hsla(0, 33%, 30%, 1);
+    border: solid 1px;
+    padding: 16px 32px;
+    text-align: center;
+    margin-bottom: 16px;
+    transition: 0.7s;
+    position: relative;
+}
+
+.msg.hidden {
+    opacity: 0;
+    visibility: hidden;
+    height: 0px;
+    padding: 0;
+    margin: 0px;
+}
+
+.msg.hidden * {
+    display: none;
+}
+
+.msg .x {
+    position: absolute;
+    right: 16px;
+    top: 20px;
+    cursor: pointer;
+}

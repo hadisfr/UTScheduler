@@ -11,6 +11,12 @@
     <script type="text/javascript" src="{% static 'js/scripts.js' %}"></script>
     <div id="header"><ul>
         <li><a href="/"><img id="logo" src="{% static 'img/ut.svg' %}"></a></li>
+        {% if request.session.username %}
+        <li><span class="fas fa-user"></span> {{request.session.username}}</li>
+        <li><a href="/logout" title="Logout"><span class="fas fa-door-open"></span></a></li>
+        {% else %}
+        <li><a href="/login?redirect={{ request.path|slice:'1:' }}" title="Login"><span class="fas fa-user-lock"></span></a></li>
+        {% endif %}
     </ul></div>
     <div class="container">
         {% if msg %}<div class="msg"><span class="fas fa-comment-alt"></span>&nbsp;<span>{{msg}}</span><span class="x fas fa-times-circle" onclick="hide_msg(this);"></span></div>{% endif %}

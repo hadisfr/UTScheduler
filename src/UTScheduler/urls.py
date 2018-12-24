@@ -19,5 +19,6 @@ import polls.views
 
 urlpatterns = [
     path('login/', polls.views.login),
+    path('logout/', polls.views.logout),
     path('admin/', admin.site.urls),
 ]

@@ -41,7 +41,7 @@ body > .container {
     display: inline-block;
 }
 
-#header > ul > li > a {
+#header > ul > li > * {
     text-decoration: none;
     color: inherit;
     padding: 16px 16px;

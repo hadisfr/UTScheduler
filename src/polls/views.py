@@ -6,7 +6,7 @@ from .models import User, Poll, Choice, Vote
 
 def my_polls(req):
     try:
-        user = User.objects.get(name=req.session['username'])
+        user = User.objects.get(name=req.session.get('username', None))
         owned_polls = Poll.objects.filter(owner=user)
         involved_polls = Poll.objects.filter(audience=user)
         return render(req, "polls/my_polls.html", {"owned_polls": owned_polls, "involved_polls": involved_polls})
@@ -55,7 +55,7 @@ def new_poll(req):
 def handle_poll(req, poll_id):
     try:
         poll = Poll.objects.get(id=poll_id)
-        user = User.objects.get(name=req.session['username'])
+        user = User.objects.get(name=req.session.get('username', None))
         choices = Choice.objects.filter(poll=poll)
         if poll.owner == user:
             return render(req, "polls/poll_details.html", {
@@ -64,7 +64,7 @@ def handle_poll(req, poll_id):
                 "involved_users": User.objects.filter(poll=poll),
                 "users": User.objects.exclude(poll=poll).exclude(owner=poll),
             })
-        elif poll.audience.filter(name=req.session['username']).exists():
+        elif poll.audience.filter(name=req.session.get('username', None)).exists():
             return render(req, "polls/poll_vote.html", {
                 "poll": poll,
                 "choices": choices,
@@ -84,7 +84,7 @@ def add_choice(req, poll_id):
     if req.method == 'POST':
         try:
             poll = Poll.objects.get(id=poll_id)
-            user = User.objects.get(name=req.session['username'])
+            user = User.objects.get(name=req.session.get('username', None))
             if poll.owner == user:
                 Choice.objects.create(poll=poll, choice_text=req.POST['text'])
                 return redirect("/polls/poll/%s" % poll.id, {"msg": "Choice created successfully!"})
@@ -103,7 +103,7 @@ def add_user_to_poll(req, poll_id):
     if req.method == 'POST':
         try:
             poll = Poll.objects.get(id=poll_id)
-            user = User.objects.get(name=req.session['username'])
+            user = User.objects.get(name=req.session.get('username', None))
             if poll.owner == user:
                 poll.audience.add(User.objects.get(name=req.POST['username']))
                 return redirect("/polls/poll/%s" % poll.id, {"msg": "User added successfully!"})

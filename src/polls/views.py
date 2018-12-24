@@ -154,3 +154,22 @@ def vote(req, poll_id):
             raise Http404
     else:
         raise Http404
+
+
+def end_poll(req, poll_id):
+    if req.method == 'POST':
+        try:
+            poll = Poll.objects.get(id=poll_id)
+            user = User.objects.get(name=req.session.get('username', None))
+            if poll.owner == user:
+                # TODO: comlete and handle closed polls everywhere
+                return redirect("/polls/poll/%s" % poll.id, {"msg": "Poll closed successfully!"})
+            else:
+                return render(req, "login.html", {
+                    "msg": "Unauthorized Access",
+                    "redirect": req.POST.get('redirect', None)
+                }, status=401)
+        except ObjectDoesNotExist:
+            raise Http404
+    else:
+        raise Http404

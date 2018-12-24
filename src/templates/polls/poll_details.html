@@ -33,4 +33,14 @@
     </div>
     <button type="submit" class="btn btn-success">Invlolve User</button>
 </form>
+<h4>Close Poll</h4>
+<form action="{{request.path}}/done" method="POST">
+    <select name="choice" class="custom-select mb-3">
+            <option selected>To be?</option>
+            {% for choice in choices %}
+            <option value="{{choice.id}}">{{choice.choice_text}}</option>
+            {% endfor %}
+        </select>
+    <button type="submit" class="btn btn-warning"> Close Poll</button>
+</form>
 {% endblock %}

@@ -1,0 +1,36 @@
+{% extends '../trunk.html' %}
+{% block content %}
+<h3>{{poll.question_text}}</h3>
+<h4>Choices</h4>
+<ul>
+{% for choice in choices %}
+<li>{{choice.choice_text}}</li>
+{% endfor %}
+</ul>
+<form action="{{request.path}}/choice" method="POST">
+    <div class="form-group">
+        <label for="text">Choice:</label>
+        <input type="text" class="form-control col-xs-9" name="text" placeholder="Hamlet">
+    </div>
+    <button type="submit" class="btn btn-success">Add Choice</button>
+</form>
+<h4>Involved People</h4>
+<ul>
+{% for user in involved_users %}
+<li>{{user.name}}</li>
+{% endfor %}
+</ul>
+</ul>
+<form action="{{request.path}}/user" method="POST">
+    <div class="form-group">
+        <label for="username">User:</label>
+        <select name="username" class="custom-select mb-3">
+            <option selected>Hamlet</option>
+            {% for user in users %}
+            <option value="{{user.name}}">{{user.name}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <button type="submit" class="btn btn-success">Invlolve User</button>
+</form>
+{% endblock %}

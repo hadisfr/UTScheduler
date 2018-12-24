@@ -1,0 +1,16 @@
+{% extends '../trunk.html' %}
+{% block content %}
+<h2>Owned Polls</h2>
+<ul>
+{% for poll in owned_polls %}
+    <li><a href="{{request.path}}poll/{{poll.id}}">{{poll.question_text}}</a></li>
+{% endfor %}
+</ul>
+
+<h2>Involved Polls</h2>
+<ul>
+{% for poll in involved_polls %}
+    <li><a href="{{request.path}}poll/{{poll.id}}">{{poll.question_text}}</a></li>
+{% endfor %}
+</ul>
+{% endblock %}

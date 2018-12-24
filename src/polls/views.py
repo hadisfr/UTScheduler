@@ -116,3 +116,32 @@ def add_user_to_poll(req, poll_id):
             raise Http404
     else:
         raise Http404
+
+
+def vote(req, poll_id):
+    choice_prefix = 'vote_'
+    if req.method == 'POST':
+        try:
+            poll = Poll.objects.get(id=poll_id)
+            user = User.objects.get(name=req.session.get('username', None))
+            if poll.audience.filter(name=user.name).exists():
+                for key in req.POST:
+                    if key.startswith(choice_prefix):
+                        choice = Choice.objects.get(id=key[len(choice_prefix):])
+                        if choice.poll != poll:
+                            raise Http404
+                        Vote.objects.update_or_create(
+                            voter=user,
+                            choice=choice,
+                            defaults={'vote': {key: value for (value, key) in Vote.VOTE_T}[req.POST[key]]},
+                        )
+                return redirect("/polls/poll/%s" % poll.id, {"msg": "Voted successfully!"})
+            else:
+                return render(req, "login.html", {
+                    "msg": "Unauthorized Access",
+                    "redirect": req.POST.get('redirect', None)
+                }, status=401)
+        except ObjectDoesNotExist:
+            raise Http404
+    else:
+        raise Http404

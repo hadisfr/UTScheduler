@@ -22,8 +22,8 @@ class Choice(models.Model):
 
 class Vote(models.Model):
     VOTE_T = (
-        ('POS', 1),
-        ('NEG', 0),
+        (1, 'POS'),
+        (0, 'NEG'),
     )
     voter = models.ForeignKey(User, on_delete=models.CASCADE)
     choice = models.ForeignKey(Choice, on_delete=models.CASCADE)

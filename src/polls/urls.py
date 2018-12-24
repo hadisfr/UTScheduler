@@ -8,4 +8,5 @@ urlpatterns = [
     path('poll/<poll_id>', polls.views.handle_poll),
     path('poll/<poll_id>/choice', polls.views.add_choice),
     path('poll/<poll_id>/user', polls.views.add_user_to_poll),
+    path('poll/<poll_id>/vote', polls.views.vote),
 ]

@@ -12,6 +12,7 @@ class Poll(models.Model):
     audience = models.ManyToManyField(User)
     pub_date = models.DateTimeField(auto_now_add=True)
     close_date = models.DateTimeField(null=True)
+    chosen_choice = models.ForeignKey('Choice', on_delete=models.CASCADE, null=True, related_name="chosen")
 
 
 class Choice(models.Model):

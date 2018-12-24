@@ -1,8 +1,15 @@
 from django.db import models
 
 
+class User(models.Model):
+    name = models.CharField(max_length=40, primary_key=True)
+    email = models.EmailField()
+
+
 class Poll(models.Model):
     question_text = models.CharField(max_length=200)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="owner")
+    audience = models.ManyToManyField(User)
     pub_date = models.DateTimeField(auto_now_add=True)
     close_date = models.DateTimeField(null=True)
 
@@ -10,11 +17,6 @@ class Poll(models.Model):
 class Choice(models.Model):
     poll = models.ForeignKey(Poll, on_delete=models.CASCADE)
     choice_text = models.CharField(max_length=200)
-
-
-class User(models.Model):
-    name = models.CharField(max_length=40, primary_key=True)
-    email = models.EmailField()
 
 
 class Vote(models.Model):

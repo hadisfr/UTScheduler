@@ -53,6 +53,9 @@ def new_poll(req):
 
 
 def handle_poll(req, poll_id):
+    def get_first_vote(l):
+        return l[0].get_vote_display() if len(l) else None
+
     try:
         poll = Poll.objects.get(id=poll_id)
         user = User.objects.get(name=req.session.get('username', None))
@@ -67,9 +70,8 @@ def handle_poll(req, poll_id):
         elif poll.audience.filter(name=req.session.get('username', None)).exists():
             return render(req, "polls/poll_vote.html", {
                 "poll": poll,
-                "choices": choices,
-                "involved_users": User.objects.filter(poll=poll),
-                "users": User.objects.exclude(poll=poll).exclude(owner=poll),
+                "choices": [{'choice': choice, 'vote': get_first_vote(Vote.objects.filter(voter=user, choice=choice))}
+                            for choice in choices],
             })
         else:
             return render(req, "login.html", {

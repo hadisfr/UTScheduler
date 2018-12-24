@@ -5,15 +5,16 @@
     <ul>
         {% for choice in choices %}
         <li><div class="form-group">
-            <p>{{choice.choice_text}}</p>
+            <p>{{choice.choice.choice_text}}</p>
+            {{votes.choice}}
             <div class="form-check-inline">
               <label class="form-check-label">
-                <input type="radio" class="form-check-input" name="vote_{{choice.id}}" value="POS">Yes
+                <input type="radio" class="form-check-input" name="vote_{{choice.choice.id}}" value="POS" {% if choice.vote == 'POS' %}checked{% endif %}>Yes
               </label>
             </div>
             <div class="form-check-inline">
               <label class="form-check-label">
-                <input type="radio" class="form-check-input" name="vote_{{choice.id}}" value="NEG">NO
+                <input type="radio" class="form-check-input" name="vote_{{choice.choice.id}}" value="NEG" {% if choice.vote == 'NEG' %}checked{% endif %}>NO
               </label>
             </div>
         </div></li>

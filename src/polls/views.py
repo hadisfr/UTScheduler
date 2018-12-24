@@ -4,9 +4,16 @@ from django.core.exceptions import ObjectDoesNotExist
 from .models import User, Poll, Choice, Vote
 
 
+def landing(req):
+    return redirect("/polls")
+
+
 def my_polls(req):
     try:
-        user = User.objects.get(name=req.session.get('username', None))
+        username = req.session.get('username', None)
+        if not username:
+            return redirect("/login")
+        user = User.objects.get(name=username)
         owned_polls = Poll.objects.filter(owner=user)
         involved_polls = Poll.objects.filter(audience=user)
         return render(req, "polls/my_polls.html", {"owned_polls": owned_polls, "involved_polls": involved_polls})

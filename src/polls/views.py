@@ -60,7 +60,7 @@ def handle_poll(req, poll_id):
             })
         else:
             return render(req, "login.html", {
-                "msg": "Wrong authentication data!",
+                "msg": "Unauthorized Access",
                 "redirect": req.POST.get('redirect', None)
             }, status=401)
     except ObjectDoesNotExist:
@@ -77,7 +77,7 @@ def add_choice(req, poll_id):
                 return redirect("/polls/poll/%s" % poll.id, {"msg": "Choice created successfully!"})
             else:
                 return render(req, "login.html", {
-                    "msg": "Wrong authentication data!",
+                    "msg": "Unauthorized Access",
                     "redirect": req.POST.get('redirect', None)
                 }, status=401)
         except ObjectDoesNotExist:
@@ -96,7 +96,7 @@ def add_user_to_poll(req, poll_id):
                 return redirect("/polls/poll/%s" % poll.id, {"msg": "User added successfully!"})
             else:
                 return render(req, "login.html", {
-                    "msg": "Wrong authentication data!",
+                    "msg": "Unauthorized Access",
                     "redirect": req.POST.get('redirect', None)
                 }, status=401)
         except ObjectDoesNotExist:

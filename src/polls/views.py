@@ -5,10 +5,13 @@ from .models import User, Poll, Choice, Vote
 
 
 def my_polls(req):
-    user = User.objects.get(name=req.session['username'])
-    owned_polls = Poll.objects.filter(owner=user)
-    involved_polls = Poll.objects.filter(audience=user)
-    return render(req, "polls/my_polls.html", {"owned_polls": owned_polls, "involved_polls": involved_polls})
+    try:
+        user = User.objects.get(name=req.session['username'])
+        owned_polls = Poll.objects.filter(owner=user)
+        involved_polls = Poll.objects.filter(audience=user)
+        return render(req, "polls/my_polls.html", {"owned_polls": owned_polls, "involved_polls": involved_polls})
+    except ObjectDoesNotExist:
+        raise Http404
 
 
 def login(req):
@@ -37,12 +40,15 @@ def logout(req):
 
 
 def new_poll(req):
-    if req.method == 'GET':
-        return render(req, "polls/new_poll.html")
-    elif req.method == 'POST':
-        poll = Poll.objects.create(question_text=req.POST['question'], owner=User.objects.get(name=req.session['username']))
-        return redirect("/polls/poll/%s" % poll.id, {"msg": "Poll created successfully!"})
-    else:
+    try:
+        if req.method == 'GET':
+            return render(req, "polls/new_poll.html")
+        elif req.method == 'POST':
+            poll = Poll.objects.create(question_text=req.POST['question'], owner=User.objects.get(name=req.session['username']))
+            return redirect("/polls/poll/%s" % poll.id, {"msg": "Poll created successfully!"})
+        else:
+            raise Http404
+    except ObjectDoesNotExist:
         raise Http404
 
 
@@ -53,6 +59,13 @@ def handle_poll(req, poll_id):
         choices = Choice.objects.filter(poll=poll)
         if poll.owner == user:
             return render(req, "polls/poll_details.html", {
+                "poll": poll,
+                "choices": choices,
+                "involved_users": User.objects.filter(poll=poll),
+                "users": User.objects.exclude(poll=poll).exclude(owner=poll),
+            })
+        elif poll.audience.filter(name=req.session['username']).exists():
+            return render(req, "polls/poll_vote.html", {
                 "poll": poll,
                 "choices": choices,
                 "involved_users": User.objects.filter(poll=poll),

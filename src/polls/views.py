@@ -3,7 +3,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.timezone import now
 
 from .models import User, Poll, Choice, Vote
-from .mail import notifier
+from .mail.mail import Mail
+from .mail.notifier import *
 
 
 def landing(req):
@@ -130,9 +131,11 @@ def add_user_to_poll(req, poll_id):
             poll = Poll.objects.get(id=poll_id)
             user = User.objects.get(name=req.session.get('username', None))
             if poll.owner == user:
-                poll.audience.add(User.objects.get(name=req.POST['username']))
+                this_audience = User.objects.get(name=req.POST['username'])
+                poll.audience.add(this_audience)
                 absolute_path = req.get_host() + str(req.path)[:str(req.path).rfind('/')]
-
+                # nn = Notifier(Mail())
+                # nn.notify_participate(user, this_audience, absolute_path)
                 return redirect("/polls/poll/%s" % poll.id, {"msg": "User added successfully!"})
             else:
                 return render(req, "login.html", {

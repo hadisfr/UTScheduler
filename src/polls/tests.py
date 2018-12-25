@@ -2,6 +2,8 @@ from django.test import TestCase
 from unittest.mock import MagicMock
 from .mail import notifier
 from .models import User
+from .mail.mail import Mail
+from django.core.mail import send_mail
 
 
 # Create your tests here.
@@ -29,14 +31,15 @@ class MockMail:
 class EmailTest(TestCase):
     def setUp(self):
         self.link = "link"
-        self.ml = MockMail()
+        self.ml = Mail()
         self.ntf = notifier.Notifier(self.ml)
         User.objects.create(name="emad", email="emad@gmail.com")
-        User.objects.create(name="tayer", email="tayer@gmail.com")
+        User.objects.create(name="tayer", email="m.taiaranian@gmail.com")
 
     def test_notifier_valid_users_text_generated_properly(self):
-        val = self.ntf.notify_participate(User.objects.get(email="emad@gmail.com"), User.objects.get(email="tayer@gmail.com"), self.link)
-        self.assertEqual(self.ml.ef, "emad@gmail.com")
-        self.assertEqual(self.ml.et, "tayer@gmail.com")
-        self.assertEqual(self.ml.sub, "UTScheduler")
-        self.assertEqual(self.ml.msg, "you are involved in a poll:\n"+self.link)
+        send_mail("ssss", "shshsh", "emad.jabbarnk@gmail.com", ["m.taiaranian@gmail.com"], fail_silently=False,)
+        # val = self.ntf.notify_participate(User.objects.get(email="emad@gmail.com"), User.objects.get(email="m.taiaranian@gmail.com"), self.link)
+        # self.assertEqual(self.ml.ef, "emad@gmail.com")
+        # self.assertEqual(self.ml.et, "m.taiaranian@gmail.com")
+        # self.assertEqual(self.ml.sub, "UTScheduler")
+        # self.assertEqual(self.ml.msg, "you are involved in a poll:\n"+self.link)

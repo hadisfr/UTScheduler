@@ -8,20 +8,21 @@
 <form action="{{request.path}}/vote" method="POST">
     <ul>
         {% for choice in choices %}
-        <li><div class="form-group">
-            <p>{{choice.choice.choice_text}}</p>
-            {{votes.choice}}
+        <li class="form-group">
             <div class="form-check-inline">
-              <label class="form-check-label">
+                {{choice.choice.choice_text}}
+            </div>
+            <div class="form-check-inline">
+                <label class="form-check-label">
                 <input type="radio" class="form-check-input" name="vote_{{choice.choice.id}}" value="POS" {% if choice.vote == 'POS' %}checked{% endif %}>Yes
               </label>
             </div>
             <div class="form-check-inline">
-              <label class="form-check-label">
-                <input type="radio" class="form-check-input" name="vote_{{choice.choice.id}}" value="NEG" {% if choice.vote == 'NEG' %}checked{% endif %}>NO
+                <label class="form-check-label">
+                <input type="radio" class="form-check-input" name="vote_{{choice.choice.id}}" value="NEG" {% if choice.vote == 'NEG' %}checked{% endif %}>No
               </label>
             </div>
-        </div></li>
+        </li>
         {% endfor %}
     </ul>
     <button type="submit" class="btn btn-success">Vote</button>

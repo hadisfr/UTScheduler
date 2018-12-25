@@ -1,5 +1,6 @@
 from django.shortcuts import render, Http404, redirect
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.timezone import now
 
 from .models import User, Poll, Choice, Vote
 
@@ -68,11 +69,22 @@ def handle_poll(req, poll_id):
         user = User.objects.get(name=req.session.get('username', None))
         choices = Choice.objects.filter(poll=poll)
         if poll.owner == user:
+            if poll.close_date == None:
+                closed = False
+            elif poll.close_date > now():
+                closed = False
+            else:
+                closed = True
+            chosen_text = ""
+            if closed:
+                chosen_text = poll.chosen_choice.choice_text
             return render(req, "polls/poll_details.html", {
                 "poll": poll,
                 "choices": choices,
                 "involved_users": User.objects.filter(poll=poll),
                 "users": User.objects.exclude(poll=poll).exclude(owner=poll),
+                "closed": closed,
+                "chosen": chosen_text
             })
         elif poll.audience.filter(name=req.session.get('username', None)).exists():
             return render(req, "polls/poll_vote.html", {
@@ -162,7 +174,14 @@ def end_poll(req, poll_id):
             poll = Poll.objects.get(id=poll_id)
             user = User.objects.get(name=req.session.get('username', None))
             if poll.owner == user:
-                # TODO: comlete and handle closed polls everywhere
+                choice_id = req.POST.get('choice')
+                try:
+                    choice_id = int(choice_id)
+                    poll.chosen_choice = Choice.objects.get(id=choice_id)
+                except ValueError as e:
+                    raise Http404
+                poll.close_date = now()
+                poll.save()
                 return redirect("/polls/poll/%s" % poll.id, {"msg": "Poll closed successfully!"})
             else:
                 return render(req, "login.html", {

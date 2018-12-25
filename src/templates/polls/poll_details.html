@@ -39,7 +39,7 @@
     <select name="choice" class="custom-select form-control mb-2 mr-sm-2 mb-2">
             <option selected>To be?</option>
             {% for choice in choices %}
-            <option value="{{choice.id}}">{{choice.choice_text}}</option>
+            <option value="{{choice.id}}">{{choice.choice.choice_text}}</option>
             {% endfor %}
         </select>
     <button type="submit" class="btn btn-warning mb-2"> Close Poll</button>

@@ -125,10 +125,10 @@ USE_TZ = True
 
 # Internationalization email
 EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp-mail.outlook.com'
-EMAIL_HOST_USER = 'utscheduler@outlook.com'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'UTScheduler@gmail.com'
 EMAIL_HOST_PASSWORD = 'hadi1emad2tayer3'
-EMAIL_PORT = 25
+EMAIL_PORT = 587
 
 
 # Static files (CSS, JavaScript, Images)

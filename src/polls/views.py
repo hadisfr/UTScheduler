@@ -3,6 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.timezone import now
 
 from .models import User, Poll, Choice, Vote
+from .mail import notifier
 
 
 def landing(req):
@@ -68,16 +69,16 @@ def handle_poll(req, poll_id):
         poll = Poll.objects.get(id=poll_id)
         user = User.objects.get(name=req.session.get('username', None))
         choices = Choice.objects.filter(poll=poll)
+        if poll.close_date == None:
+            closed = False
+        elif poll.close_date > now():
+            closed = False
+        else:
+            closed = True
+        chosen_text = ""
+        if closed:
+            chosen_text = poll.chosen_choice.choice_text
         if poll.owner == user:
-            if poll.close_date == None:
-                closed = False
-            elif poll.close_date > now():
-                closed = False
-            else:
-                closed = True
-            chosen_text = ""
-            if closed:
-                chosen_text = poll.chosen_choice.choice_text
             return render(req, "polls/poll_details.html", {
                 "poll": poll,
                 "choices": choices,
@@ -87,10 +88,13 @@ def handle_poll(req, poll_id):
                 "chosen": chosen_text
             })
         elif poll.audience.filter(name=req.session.get('username', None)).exists():
+            closed
             return render(req, "polls/poll_vote.html", {
                 "poll": poll,
                 "choices": [{'choice': choice, 'vote': get_first_vote(Vote.objects.filter(voter=user, choice=choice))}
                             for choice in choices],
+                "closed": closed,
+                "chosen": chosen_text
             })
         else:
             return render(req, "login.html", {
@@ -127,6 +131,8 @@ def add_user_to_poll(req, poll_id):
             user = User.objects.get(name=req.session.get('username', None))
             if poll.owner == user:
                 poll.audience.add(User.objects.get(name=req.POST['username']))
+                absolute_path = req.get_host() + str(req.path)[:str(req.path).rfind('/')]
+
                 return redirect("/polls/poll/%s" % poll.id, {"msg": "User added successfully!"})
             else:
                 return render(req, "login.html", {

@@ -1,5 +1,9 @@
 {% extends '../trunk.html' %}
 {% block content %}
+{% if closed %}
+<h4>Poll Closed With:</h4>
+<h6>{{chosen}}</h6>
+{% else %}
 <h3>{{poll.question_text}}</h3>
 <form action="{{request.path}}/vote" method="POST">
     <ul>
@@ -22,4 +26,5 @@
     </ul>
     <button type="submit" class="btn btn-success">Vote</button>
 </form>
+{% endif %}
 {% endblock %}

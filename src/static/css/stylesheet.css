@@ -1,15 +1,21 @@
 body > .container {
-    height: calc(100vh - 32px - 2.5ex);
+    min-height: calc(100vh);
     box-shadow: rgba(0, 0, 0, 0.2) 0 0 30px;
     padding-top: calc(32px + 3em);
+    padding-bottom: calc(32px + 3em);
+}
+
+body {
+    position: relative;
 }
 
 #footer {
     text-align: center;
     font-size: small;
     padding: 16px;
-    position: relative;
+    position: absolute;
     bottom: 0;
+    width: 100%;
 }
 
 #header {

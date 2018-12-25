@@ -1,6 +1,7 @@
 from django.shortcuts import render, Http404, redirect
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.timezone import now
+
 from .dto import voteResult
 from .models import User, Poll, Choice, Vote
 from .mail.mail import Mail
@@ -75,7 +76,7 @@ def handle_poll(req, poll_id):
             neg = Vote.objects.filter(choice=c, vote=0).count()
             pos = Vote.objects.filter(choice=c, vote=1).count()
             choice_dtos.append(voteResult.VoteResultDTO(c, pos, neg))
-        if poll.close_date == None:
+        if not poll.close_date:
             closed = False
         elif poll.close_date > now():
             closed = False
@@ -110,6 +111,7 @@ def handle_poll(req, poll_id):
     except ObjectDoesNotExist:
         raise Http404
 
+
 def add_choice(req, poll_id):
     if req.method == 'POST':
         try:
@@ -137,9 +139,8 @@ def add_user_to_poll(req, poll_id):
             if poll.owner == user:
                 this_audience = User.objects.get(name=req.POST['username'])
                 poll.audience.add(this_audience)
-                absolute_path = req.get_host() + str(req.path)[:str(req.path).rfind('/')]
                 # nn = Notifier(Mail())
-                # nn.notify_participate(user, this_audience, absolute_path)
+                # nn.notify_participate(user, this_audience, req.build_absolute_uri())
                 return redirect("/polls/poll/%s" % poll.id, {"msg": "User added successfully!"})
             else:
                 return render(req, "login.html", {

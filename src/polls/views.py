@@ -128,8 +128,10 @@ def add_user_to_poll(req, poll_id):
             if poll.owner == user and not is_poll_closed(poll):
                 this_audience = User.objects.get(name=req.POST['username'])
                 poll.audience.add(this_audience)
+                uri = req.build_absolute_uri()
+                uri = uri[:uri.rfind('/')]
                 nn = Notifier(Mail())
-                nn.notify_participate(user, this_audience, req.build_absolute_uri())
+                nn.notify_participate(user, this_audience, uri)
                 return redirect("/polls/poll/%s" % poll.id, {"msg": "User added successfully!"})
             else:
                 raise Http404

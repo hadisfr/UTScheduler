@@ -2,11 +2,9 @@ from django.shortcuts import render, Http404, redirect
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.timezone import now
 
-from .dto import voteResult
 from .models import User, Poll, Choice, Vote
 from .mail.mail import Mail
 from .mail.notifier import *
-
 
 def landing(req):
     return redirect("/polls")
@@ -75,16 +73,14 @@ def handle_poll(req, poll_id):
         poll = Poll.objects.get(id=poll_id)
         user = User.objects.get(name=req.session.get('username', None))
         choices = Choice.objects.filter(poll=poll)
-        choice_dtos = []
-        for c in Choice.objects.filter(poll=poll):
-            neg = Vote.objects.filter(choice=c, vote=0).count()
-            pos = Vote.objects.filter(choice=c, vote=1).count()
-            choice_dtos.append(voteResult.VoteResultDTO(c, pos, neg))
         chosen_text = poll.chosen_choice.choice_text if is_poll_closed(poll) else ""
         if poll.owner == user:
             return render(req, "polls/poll_details.html", {
                 "poll": poll,
-                "choices": choice_dtos,
+                "choices": [{"choice": choice, "votes": [
+                    {"text": opt[1], "num": Vote.objects.filter(choice=choice, vote=opt[0]).count()}
+                    for opt in Vote.VOTE_T
+                ]} for choice in choices],
                 "involved_users": User.objects.filter(poll=poll),
                 "users": User.objects.exclude(poll=poll).exclude(owner=poll),
                 "closed": is_poll_closed(poll),
@@ -95,6 +91,7 @@ def handle_poll(req, poll_id):
                 "poll": poll,
                 "choices": [{'choice': choice, 'vote': get_first_vote(Vote.objects.filter(voter=user, choice=choice))}
                             for choice in choices],
+                "possible_votes": [vote[1] for vote in Vote.VOTE_T],
                 "closed": is_poll_closed(poll),
                 "chosen": chosen_text
             })

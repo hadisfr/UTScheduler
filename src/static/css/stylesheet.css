@@ -103,3 +103,15 @@ table * {
     top: 20px;
     cursor: pointer;
 }
+
+dt, dd {
+    display: inline-block;
+}
+
+dt::after {
+    content: ":";
+}
+
+dd {
+    padding-right: 1em;
+}

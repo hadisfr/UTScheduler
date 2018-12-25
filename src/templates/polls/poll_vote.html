@@ -12,16 +12,13 @@
             <div class="form-check-inline">
                 {{choice.choice.choice_text}}
             </div>
+            {% for vote in possible_votes %}
             <div class="form-check-inline">
                 <label class="form-check-label">
-                <input type="radio" class="form-check-input" name="vote_{{choice.choice.id}}" value="POS" {% if choice.vote == 'POS' %}checked{% endif %}>Yes
+                <input type="radio" class="form-check-input" name="vote_{{choice.choice.id}}" value="{{vote}}" {% if choice.vote == vote %}checked{% endif %}>{{vote}}
               </label>
             </div>
-            <div class="form-check-inline">
-                <label class="form-check-label">
-                <input type="radio" class="form-check-input" name="vote_{{choice.choice.id}}" value="NEG" {% if choice.vote == 'NEG' %}checked{% endif %}>No
-              </label>
-            </div>
+            {% endfor %}
         </li>
         {% endfor %}
     </ul>

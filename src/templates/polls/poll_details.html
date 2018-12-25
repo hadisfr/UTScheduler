@@ -4,7 +4,15 @@
 <h4>Choices</h4>
 <ul>
 {% for choice in choices %}
-<li>{{choice.choice.choice_text}} (pos: {{ choice.pos }}, neg: {{ choice.neg }})</li>
+<li>
+    {{choice.choice.choice_text}}
+    <dl>
+        {% for vote in choice.votes %}
+        <dt>{{vote.text}}</dt>
+        <dd>{{vote.num}}</dd>
+        {% endfor %}
+    </dl>
+</li>
 {% endfor %}
 </ul>
 {% if not closed %}

@@ -6,6 +6,9 @@
     <li><a href="{{request.path}}poll/{{poll.id}}">{{poll.question_text}}</a></li>
 {% endfor %}
 </ul>
+<form action="{{request.path}}new" method="GET" class="form-inline">
+    <button type="submit" class="btn btn-success mb-2"> New Poll</button>
+</form>
 
 <h2>Involved Polls</h2>
 <ul>

@@ -63,6 +63,10 @@ def new_poll(req):
         raise Http404
 
 
+def is_poll_closed(poll):
+    return poll.close_date and poll.close_date < now()
+
+
 def handle_poll(req, poll_id):
     def get_first_vote(l):
         return l[0].get_vote_display() if len(l) else None
@@ -76,31 +80,22 @@ def handle_poll(req, poll_id):
             neg = Vote.objects.filter(choice=c, vote=0).count()
             pos = Vote.objects.filter(choice=c, vote=1).count()
             choice_dtos.append(voteResult.VoteResultDTO(c, pos, neg))
-        if not poll.close_date:
-            closed = False
-        elif poll.close_date > now():
-            closed = False
-        else:
-            closed = True
-        chosen_text = ""
-        if closed:
-            chosen_text = poll.chosen_choice.choice_text
+        chosen_text = poll.chosen_choice.choice_text if is_poll_closed(poll) else ""
         if poll.owner == user:
             return render(req, "polls/poll_details.html", {
                 "poll": poll,
                 "choices": choice_dtos,
                 "involved_users": User.objects.filter(poll=poll),
                 "users": User.objects.exclude(poll=poll).exclude(owner=poll),
-                "closed": closed,
+                "closed": is_poll_closed(poll),
                 "chosen": chosen_text
             })
         elif poll.audience.filter(name=req.session.get('username', None)).exists():
-            closed
             return render(req, "polls/poll_vote.html", {
                 "poll": poll,
                 "choices": [{'choice': choice, 'vote': get_first_vote(Vote.objects.filter(voter=user, choice=choice))}
                             for choice in choices],
-                "closed": closed,
+                "closed": is_poll_closed(poll),
                 "chosen": chosen_text
             })
         else:
@@ -117,14 +112,11 @@ def add_choice(req, poll_id):
         try:
             poll = Poll.objects.get(id=poll_id)
             user = User.objects.get(name=req.session.get('username', None))
-            if poll.owner == user:
+            if poll.owner == user and not is_poll_closed(poll):
                 Choice.objects.create(poll=poll, choice_text=req.POST['text'])
                 return redirect("/polls/poll/%s" % poll.id, {"msg": "Choice created successfully!"})
             else:
-                return render(req, "login.html", {
-                    "msg": "Unauthorized Access",
-                    "redirect": req.POST.get('redirect', None)
-                }, status=401)
+                raise Http404
         except ObjectDoesNotExist:
             raise Http404
     else:
@@ -136,17 +128,14 @@ def add_user_to_poll(req, poll_id):
         try:
             poll = Poll.objects.get(id=poll_id)
             user = User.objects.get(name=req.session.get('username', None))
-            if poll.owner == user:
+            if poll.owner == user and not is_poll_closed(poll):
                 this_audience = User.objects.get(name=req.POST['username'])
                 poll.audience.add(this_audience)
                 # nn = Notifier(Mail())
                 # nn.notify_participate(user, this_audience, req.build_absolute_uri())
                 return redirect("/polls/poll/%s" % poll.id, {"msg": "User added successfully!"})
             else:
-                return render(req, "login.html", {
-                    "msg": "Unauthorized Access",
-                    "redirect": req.POST.get('redirect', None)
-                }, status=401)
+                raise Http404
         except ObjectDoesNotExist:
             raise Http404
     else:
@@ -159,7 +148,7 @@ def vote(req, poll_id):
         try:
             poll = Poll.objects.get(id=poll_id)
             user = User.objects.get(name=req.session.get('username', None))
-            if poll.audience.filter(name=user.name).exists():
+            if poll.audience.filter(name=user.name).exists() and not is_poll_closed(poll):
                 for key in req.POST:
                     if key.startswith(choice_prefix):
                         choice = Choice.objects.get(id=key[len(choice_prefix):])
@@ -172,10 +161,7 @@ def vote(req, poll_id):
                         )
                 return redirect("/polls/poll/%s" % poll.id, {"msg": "Voted successfully!"})
             else:
-                return render(req, "login.html", {
-                    "msg": "Unauthorized Access",
-                    "redirect": req.POST.get('redirect', None)
-                }, status=401)
+                raise Http404
         except ObjectDoesNotExist:
             raise Http404
     else:
@@ -187,7 +173,7 @@ def end_poll(req, poll_id):
         try:
             poll = Poll.objects.get(id=poll_id)
             user = User.objects.get(name=req.session.get('username', None))
-            if poll.owner == user:
+            if poll.owner == user and not is_poll_closed(poll):
                 choice_id = req.POST['choice']
                 try:
                     poll.chosen_choice = Choice.objects.get(id=choice_id)
@@ -197,10 +183,7 @@ def end_poll(req, poll_id):
                 poll.save()
                 return redirect("/polls/poll/%s" % poll.id, {"msg": "Poll closed successfully!"})
             else:
-                return render(req, "login.html", {
-                    "msg": "Unauthorized Access",
-                    "redirect": req.POST.get('redirect', None)
-                }, status=401)
+                raise Http404
         except ObjectDoesNotExist:
             raise Http404
     else:

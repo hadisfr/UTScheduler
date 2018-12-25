@@ -7,7 +7,7 @@ from .models import User
 # Create your tests here.
 
 # run tests:
-# python3 src/manage.py test poll
+# python3 src/manage.py test polls
 
 # pre: MYSQL
 # GRANT ALL PRIVILEGES ON test_utscheduler . * TO 'ut'@'localhost';

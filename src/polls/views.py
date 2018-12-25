@@ -1,6 +1,11 @@
 from django.shortcuts import render, Http404, redirect
 from django.core.exceptions import ObjectDoesNotExist
+<<<<<<< Updated upstream
 from django.utils.timezone import now
+=======
+from .dto import voteResult
+
+>>>>>>> Stashed changes
 
 from .models import User, Poll, Choice, Vote
 from .mail import notifier
@@ -68,7 +73,9 @@ def handle_poll(req, poll_id):
     try:
         poll = Poll.objects.get(id=poll_id)
         user = User.objects.get(name=req.session.get('username', None))
+        choice_dtos = []
         choices = Choice.objects.filter(poll=poll)
+<<<<<<< Updated upstream
         if poll.close_date == None:
             closed = False
         elif poll.close_date > now():
@@ -78,10 +85,16 @@ def handle_poll(req, poll_id):
         chosen_text = ""
         if closed:
             chosen_text = poll.chosen_choice.choice_text
+=======
+        for c in Choice.objects.filter(poll=poll):
+            neg = Vote.objects.filter(choice=c, vote=0).count()
+            pos = Vote.objects.filter(choice=c, vote=1).count()
+            choice_dtos.append(voteResult.VoteResultDTO(c, pos, neg))
+>>>>>>> Stashed changes
         if poll.owner == user:
             return render(req, "polls/poll_details.html", {
                 "poll": poll,
-                "choices": choices,
+                "choices": choice_dtos,
                 "involved_users": User.objects.filter(poll=poll),
                 "users": User.objects.exclude(poll=poll).exclude(owner=poll),
                 "closed": closed,

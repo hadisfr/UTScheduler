@@ -7,6 +7,7 @@
 <li>{{choice.choice_text}}</li>
 {% endfor %}
 </ul>
+{% if not closed %}
 <form action="{{request.path}}/choice" method="POST">
     <div class="form-group">
         <label for="text">Choice:</label>
@@ -14,6 +15,7 @@
     </div>
     <button type="submit" class="btn btn-success">Add Choice</button>
 </form>
+{% endif %}
 <h4>Involved People</h4>
 <ul>
 {% for user in involved_users %}
@@ -21,6 +23,7 @@
 {% endfor %}
 </ul>
 </ul>
+{% if not closed %}
 <form action="{{request.path}}/user" method="POST">
     <div class="form-group">
         <label for="username">User:</label>
@@ -33,6 +36,8 @@
     </div>
     <button type="submit" class="btn btn-success">Invlolve User</button>
 </form>
+{% endif %}
+{% if not closed %}
 <h4>Close Poll</h4>
 <form action="{{request.path}}/done" method="POST">
     <select name="choice" class="custom-select mb-3">
@@ -43,4 +48,8 @@
         </select>
     <button type="submit" class="btn btn-warning"> Close Poll</button>
 </form>
+{% else %}
+<h4>Poll Closed With:</h4>
+<h6>{{chosen}}</h6>
+{% endif %}
 {% endblock %}

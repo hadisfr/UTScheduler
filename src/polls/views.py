@@ -187,11 +187,10 @@ def end_poll(req, poll_id):
             poll = Poll.objects.get(id=poll_id)
             user = User.objects.get(name=req.session.get('username', None))
             if poll.owner == user:
-                choice_id = req.POST.get('choice')
+                choice_id = req.POST['choice']
                 try:
-                    choice_id = int(choice_id)
                     poll.chosen_choice = Choice.objects.get(id=choice_id)
-                except ValueError as e:
+                except ObjectDoesNotExist:
                     raise Http404
                 poll.close_date = now()
                 poll.save()

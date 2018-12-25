@@ -1,7 +1,7 @@
 from django.shortcuts import render, Http404, redirect
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.timezone import now
-
+from .dto import voteResult
 from .models import User, Poll, Choice, Vote
 from .mail.mail import Mail
 from .mail.notifier import *
@@ -70,6 +70,11 @@ def handle_poll(req, poll_id):
         poll = Poll.objects.get(id=poll_id)
         user = User.objects.get(name=req.session.get('username', None))
         choices = Choice.objects.filter(poll=poll)
+        choice_dtos = []
+        for c in Choice.objects.filter(poll=poll):
+            neg = Vote.objects.filter(choice=c, vote=0).count()
+            pos = Vote.objects.filter(choice=c, vote=1).count()
+            choice_dtos.append(voteResult.VoteResultDTO(c, pos, neg))
         if poll.close_date == None:
             closed = False
         elif poll.close_date > now():
@@ -82,7 +87,7 @@ def handle_poll(req, poll_id):
         if poll.owner == user:
             return render(req, "polls/poll_details.html", {
                 "poll": poll,
-                "choices": choices,
+                "choices": choice_dtos,
                 "involved_users": User.objects.filter(poll=poll),
                 "users": User.objects.exclude(poll=poll).exclude(owner=poll),
                 "closed": closed,
@@ -104,7 +109,6 @@ def handle_poll(req, poll_id):
             }, status=401)
     except ObjectDoesNotExist:
         raise Http404
-
 
 def add_choice(req, poll_id):
     if req.method == 'POST':

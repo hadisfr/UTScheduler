@@ -123,6 +123,13 @@ USE_L10N = True
 
 USE_TZ = True
 
+# Internationalization email
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp-mail.outlook.com'
+EMAIL_HOST_USER = 'utscheduler@outlook.com'
+EMAIL_HOST_PASSWORD = 'hadi1emad2tayer3'
+EMAIL_PORT = 25
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/

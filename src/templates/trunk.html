@@ -18,7 +18,7 @@
         <li><a href="/login?redirect={{ request.path|slice:'1:' }}" title="Login"><span class="fas fa-user-lock"></span></a></li>
         {% endif %}
     </ul></div>
-    <div class="container">
+    <div class="container" style="overflow-y: scroll">
         {% if msg %}<div class="msg"><span class="fas fa-comment-alt"></span>&nbsp;<span>{{msg}}</span><span class="x fas fa-times-circle" onclick="hide_msg(this);"></span></div>{% endif %}
         {% block content %}
         {% endblock %}

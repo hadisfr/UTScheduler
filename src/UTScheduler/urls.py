@@ -18,9 +18,9 @@ from django.urls import path, include
 import polls.views
 
 urlpatterns = [
-    path('', polls.views.landing),
-    path('polls/', include('polls.urls')),
-    path('login/', polls.views.login),
-    path('logout/', polls.views.logout),
-    path('admin/', admin.site.urls),
+    path('', polls.views.landing, name="landing"),
+    path('poll/', include(('polls.urls', 'polls'), namespace="poll")),
+    path('login/', polls.views.login, name="login"),
+    path('logout/', polls.views.logout, name="logout"),
+    path('admin/', admin.site.urls, name="admin"),
 ]

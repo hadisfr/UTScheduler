@@ -2,7 +2,7 @@
 {% block title %} :: New Poll{% endblock %}
 {% block content %}
 <h1><span class="fas fa-poll"></span> New Poll</h1>
-<form action="{{request.path}}" method="POST">
+<form action="{% url 'poll:new' %}" method="POST">
     <div class="form-group">
         <label for="question">Poll:</label>
         <input type="text" class="form-control" name="question" placeholder="To be or not to be?">

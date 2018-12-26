@@ -3,17 +3,17 @@
 <h2>Owned Polls</h2>
 <ul>
 {% for poll in owned_polls %}
-    <li><a href="{{request.path}}poll/{{poll.id}}">{{poll.question_text}}</a></li>
+    <li><a href="{% url 'poll:show' poll.id %}">{{poll.question_text}}</a></li>
 {% endfor %}
 </ul>
-<form action="{{request.path}}new" method="GET" class="form-inline">
+<form action="{% url 'poll:new' %}" method="GET" class="form-inline">
     <button type="submit" class="btn btn-success mb-2"> New Poll</button>
 </form>
 
 <h2>Involved Polls</h2>
 <ul>
 {% for poll in involved_polls %}
-    <li><a href="{{request.path}}poll/{{poll.id}}">{{poll.question_text}}</a></li>
+    <li><a href="{% url 'poll:show' poll.id %}">{{poll.question_text}}</a></li>
 {% endfor %}
 </ul>
 {% endblock %}

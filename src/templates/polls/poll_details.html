@@ -16,7 +16,7 @@
 {% endfor %}
 </ul>
 {% if not closed %}
-<form action="{{request.path}}/choice" method="POST" class="form-inline">
+<form action="{% url 'poll:choice' poll.id %}" method="POST" class="form-inline">
     <label for="text" class="mr-sm-2">Choice:</label>
     <input type="text" class="form-control mb-2 mr-sm-2 mb-2" name="text" placeholder="Hamlet" id="text">
     <button type="submit" class="btn btn-success mb-2">Add Choice</button>
@@ -30,7 +30,7 @@
 </ul>
 </ul>
 {% if not closed %}
-<form action="{{request.path}}/user" method="POST" class="form-inline">
+<form action="{% url 'poll:user' poll.id %}" method="POST" class="form-inline">
     <label for="username" class="mr-sm-2">User:</label>
     <select name="username" class="custom-select form-control mb-2 mr-sm-2 mb-2">
         <option selected>Hamlet</option>
@@ -43,7 +43,7 @@
 {% endif %}
 {% if not closed %}
 <h4>Close Poll</h4>
-<form action="{{request.path}}/done" method="POST" class="form-inline">
+<form action="{% url 'poll:done' poll.id %}" method="POST" class="form-inline">
     <select name="choice" class="custom-select form-control mb-2 mr-sm-2 mb-2">
             <option selected>To be?</option>
             {% for choice in choices %}
@@ -54,7 +54,7 @@
 </form>
 {% else %}
 <p>Poll closed with: {{chosen}}</p>
-<form action="{{request.path}}/reopen" method="POST" class="form-inline">
+<form action="{% url 'poll:reopen' poll.id %}" method="POST" class="form-inline">
     <button type="submit" class="btn btn-warning mb-2"> Reopen Poll</button>
 </form>
 {% endif %}

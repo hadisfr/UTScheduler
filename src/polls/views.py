@@ -1,4 +1,4 @@
-from django.shortcuts import render, Http404, redirect
+from django.shortcuts import render, Http404, redirect, reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.timezone import now
 
@@ -6,15 +6,16 @@ from .models import User, Poll, Choice, Vote
 from .mail.mail import Mail
 from .mail.notifier import *
 
+
 def landing(req):
-    return redirect("/polls")
+    return redirect(reverse('poll:all'))
 
 
 def my_polls(req):
     try:
         username = req.session.get('username', None)
         if not username:
-            return redirect("/login")
+            return redirect(reverse('login'))
         user = User.objects.get(name=username)
         owned_polls = Poll.objects.filter(owner=user)
         involved_polls = Poll.objects.filter(audience=user)
@@ -30,14 +31,10 @@ def login(req):
         try:
             user = User.objects.get(name=req.POST['username'])
             req.session['username'] = user.name
-            if req.POST.get('redirect', None):
-                return redirect("/%s" % req.POST['redirect'])
-            else:
-                return redirect("/")
+            return redirect(reverse('landing'))
         except ObjectDoesNotExist:
             return render(req, "login.html", {
                 "msg": "Wrong authentication data!",
-                "redirect": req.POST.get('redirect', None)
             }, status=401)
     else:
         raise Http404
@@ -45,7 +42,7 @@ def login(req):
 
 def logout(req):
     req.session['username'] = None
-    return redirect("/")
+    return redirect(reverse('landing'))
 
 
 def new_poll(req):
@@ -54,7 +51,8 @@ def new_poll(req):
             return render(req, "polls/new_poll.html")
         elif req.method == 'POST':
             poll = Poll.objects.create(question_text=req.POST['question'], owner=User.objects.get(name=req.session['username']))
-            return redirect("/polls/poll/%s" % poll.id, {"msg": "Poll created successfully!"})
+            req.session['msg'] = "Poll created successfully!"
+            return redirect(reverse('poll:show', kwargs={'poll_id': poll.id}))
         else:
             raise Http404
     except ObjectDoesNotExist:
@@ -98,7 +96,6 @@ def handle_poll(req, poll_id):
         else:
             return render(req, "login.html", {
                 "msg": "Unauthorized Access",
-                "redirect": req.POST.get('redirect', None)
             }, status=401)
     except ObjectDoesNotExist:
         raise Http404
@@ -111,7 +108,8 @@ def add_choice(req, poll_id):
             user = User.objects.get(name=req.session.get('username', None))
             if poll.owner == user and not is_poll_closed(poll):
                 Choice.objects.create(poll=poll, choice_text=req.POST['text'])
-                return redirect("/polls/poll/%s" % poll.id, {"msg": "Choice created successfully!"})
+                req.session['msg'] = "Choice created successfully!"
+                return redirect(reverse('poll:show', kwargs={'poll_id': poll.id}))
             else:
                 raise Http404
         except ObjectDoesNotExist:
@@ -132,7 +130,8 @@ def add_user_to_poll(req, poll_id):
                 uri = uri[:uri.rfind('/')]
                 nn = Notifier(Mail())
                 nn.notify_participate(user, this_audience, uri)
-                return redirect("/polls/poll/%s" % poll.id, {"msg": "User added successfully!"})
+                req.session['msg'] = "User added successfully!"
+                return redirect(reverse('poll:show', kwargs={'poll_id': poll.id}))
             else:
                 raise Http404
         except ObjectDoesNotExist:
@@ -158,7 +157,8 @@ def vote(req, poll_id):
                             choice=choice,
                             defaults={'vote': {key: value for (value, key) in Vote.VOTE_T}[req.POST[key]]},
                         )
-                return redirect("/polls/poll/%s" % poll.id, {"msg": "Voted successfully!"})
+                req.session['msg'] = "Voted successfully!"
+                return redirect(reverse('poll:show', kwargs={'poll_id': poll.id}))
             else:
                 raise Http404
         except (ObjectDoesNotExist, ValueError):
@@ -179,7 +179,8 @@ def end_poll(req, poll_id):
                     raise Http404
                 poll.close_date = now()
                 poll.save()
-                return redirect("/polls/poll/%s" % poll.id, {"msg": "Poll closed successfully!"})
+                req.session['msg'] = "Poll closed successfully!"
+                return redirect(reverse('poll:show', kwargs={'poll_id': poll.id}))
             else:
                 raise Http404
         except (ObjectDoesNotExist, ValueError):
@@ -197,7 +198,8 @@ def begin_poll(req, poll_id):
                 poll.chosen_choice = None
                 poll.close_date = None
                 poll.save()
-                return redirect("/polls/poll/%s" % poll.id, {"msg": "Poll reopened successfully!"})
+                req.session['msg'] = "Poll reopened successfully!"
+                return redirect(reverse('poll:show', kwargs={'poll_id': poll.id}))
             else:
                 raise Http404
         except ObjectDoesNotExist:

@@ -5,7 +5,7 @@
 <h6>{{chosen}}</h6>
 {% else %}
 <h3>{{poll.question_text}}</h3>
-<form action="{{request.path}}/vote" method="POST">
+<form action="{% url 'poll:vote' poll.id %}" method="POST">
     <ul>
         {% for choice in choices %}
         <li class="form-group">

@@ -12,16 +12,9 @@ def landing(req):
 
 
 def my_polls(req):
-    try:
-        username = req.session.get('username', None)
-        if not username:
-            return redirect(reverse('login'))
-        user = User.objects.get(name=username)
-        owned_polls = Poll.objects.filter(owner=user)
-        involved_polls = Poll.objects.filter(audience=user)
-        return render(req, "polls/my_polls.html", {"owned_polls": owned_polls, "involved_polls": involved_polls})
-    except ObjectDoesNotExist:
-        raise Http404
+    owned_polls = Poll.objects.filter(owner=req.puser)
+    involved_polls = Poll.objects.filter(audience=req.puser)
+    return render(req, "polls/my_polls.html", {"owned_polls": owned_polls, "involved_polls": involved_polls})
 
 
 def login(req):
@@ -50,7 +43,7 @@ def new_poll(req):
         if req.method == 'GET':
             return render(req, "polls/new_poll.html")
         elif req.method == 'POST':
-            poll = Poll.objects.create(question_text=req.POST['question'], owner=User.objects.get(name=req.session['username']))
+            poll = Poll.objects.create(question_text=req.POST['question'], owner=req.puser)
             req.session['msg'] = "Poll created successfully!"
             return redirect(reverse('poll:show', kwargs={'poll_id': poll.id}))
         else:
@@ -69,7 +62,7 @@ def handle_poll(req, poll_id):
 
     try:
         poll = Poll.objects.get(id=poll_id)
-        user = User.objects.get(name=req.session.get('username', None))
+        user = req.puser
         choices = Choice.objects.filter(poll=poll)
         chosen_text = poll.chosen_choice.choice_text if is_poll_closed(poll) else ""
         if poll.owner == user:
@@ -105,8 +98,7 @@ def add_choice(req, poll_id):
     if req.method == 'POST':
         try:
             poll = Poll.objects.get(id=poll_id)
-            user = User.objects.get(name=req.session.get('username', None))
-            if poll.owner == user and not is_poll_closed(poll):
+            if poll.owner == req.puser and not is_poll_closed(poll):
                 Choice.objects.create(poll=poll, choice_text=req.POST['text'])
                 req.session['msg'] = "Choice created successfully!"
                 return redirect(reverse('poll:show', kwargs={'poll_id': poll.id}))
@@ -122,14 +114,13 @@ def add_user_to_poll(req, poll_id):
     if req.method == 'POST':
         try:
             poll = Poll.objects.get(id=poll_id)
-            user = User.objects.get(name=req.session.get('username', None))
-            if poll.owner == user and not is_poll_closed(poll):
+            if poll.owner == req.puser and not is_poll_closed(poll):
                 this_audience = User.objects.get(name=req.POST['username'])
                 poll.audience.add(this_audience)
                 uri = req.build_absolute_uri()
                 uri = uri[:uri.rfind('/')]
                 nn = Notifier(Mail())
-                nn.notify_participate(user, this_audience, uri)
+                nn.notify_participate(req.puser, this_audience, uri)
                 req.session['msg'] = "User added successfully!"
                 return redirect(reverse('poll:show', kwargs={'poll_id': poll.id}))
             else:
@@ -145,15 +136,14 @@ def vote(req, poll_id):
     if req.method == 'POST':
         try:
             poll = Poll.objects.get(id=poll_id)
-            user = User.objects.get(name=req.session.get('username', None))
-            if poll.audience.filter(name=user.name).exists() and not is_poll_closed(poll):
+            if poll.audience.filter(name=req.puser.name).exists() and not is_poll_closed(poll):
                 for key in req.POST:
                     if key.startswith(choice_prefix):
                         choice = Choice.objects.get(id=key[len(choice_prefix):])
                         if choice.poll != poll:
                             raise Http404
                         Vote.objects.update_or_create(
-                            voter=user,
+                            voter=req.puser,
                             choice=choice,
                             defaults={'vote': {key: value for (value, key) in Vote.VOTE_T}[req.POST[key]]},
                         )
@@ -171,8 +161,7 @@ def end_poll(req, poll_id):
     if req.method == 'POST':
         try:
             poll = Poll.objects.get(id=poll_id)
-            user = User.objects.get(name=req.session.get('username', None))
-            if poll.owner == user and not is_poll_closed(poll):
+            if poll.owner == req.puser and not is_poll_closed(poll):
                 try:
                     poll.chosen_choice = Choice.objects.get(id=req.POST['choice'])
                 except ObjectDoesNotExist:
@@ -193,8 +182,7 @@ def begin_poll(req, poll_id):
     if req.method == 'POST':
         try:
             poll = Poll.objects.get(id=poll_id)
-            user = User.objects.get(name=req.session.get('username', None))
-            if poll.owner == user:
+            if poll.owner == req.puser:
                 poll.chosen_choice = None
                 poll.close_date = None
                 poll.save()

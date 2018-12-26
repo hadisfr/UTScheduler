@@ -161,7 +161,7 @@ def vote(req, poll_id):
                 return redirect("/polls/poll/%s" % poll.id, {"msg": "Voted successfully!"})
             else:
                 raise Http404
-        except ObjectDoesNotExist:
+        except (ObjectDoesNotExist, ValueError):
             raise Http404
     else:
         raise Http404

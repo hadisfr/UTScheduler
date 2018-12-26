@@ -1,4 +1,3 @@
-from django.contrib import admin
 from django.urls import path
 import polls.views
 
@@ -10,4 +9,5 @@ urlpatterns = [
     path('poll/<poll_id>/user', polls.views.add_user_to_poll),
     path('poll/<poll_id>/vote', polls.views.vote),
     path('poll/<poll_id>/done', polls.views.end_poll),
+    path('poll/<poll_id>/reopen', polls.views.begin_poll),
 ]

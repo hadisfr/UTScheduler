@@ -173,14 +173,31 @@ def end_poll(req, poll_id):
             poll = Poll.objects.get(id=poll_id)
             user = User.objects.get(name=req.session.get('username', None))
             if poll.owner == user and not is_poll_closed(poll):
-                choice_id = req.POST['choice']
                 try:
-                    poll.chosen_choice = Choice.objects.get(id=choice_id)
+                    poll.chosen_choice = Choice.objects.get(id=req.POST['choice'])
                 except ObjectDoesNotExist:
                     raise Http404
                 poll.close_date = now()
                 poll.save()
                 return redirect("/polls/poll/%s" % poll.id, {"msg": "Poll closed successfully!"})
+            else:
+                raise Http404
+        except (ObjectDoesNotExist, ValueError):
+            raise Http404
+    else:
+        raise Http404
+
+
+def begin_poll(req, poll_id):
+    if req.method == 'POST':
+        try:
+            poll = Poll.objects.get(id=poll_id)
+            user = User.objects.get(name=req.session.get('username', None))
+            if poll.owner == user:
+                poll.chosen_choice = None
+                poll.close_date = None
+                poll.save()
+                return redirect("/polls/poll/%s" % poll.id, {"msg": "Poll reopened successfully!"})
             else:
                 raise Http404
         except ObjectDoesNotExist:

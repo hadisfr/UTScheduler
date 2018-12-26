@@ -4,7 +4,7 @@ from django.utils.timezone import now
 
 from .models import User, Poll, Choice, Vote
 from .mail.mail import Mail
-from .mail.notifier import *
+from .mail.notifier import Notifier
 
 
 def landing(req):

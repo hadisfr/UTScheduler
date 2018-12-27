@@ -1,5 +1,6 @@
 from django.shortcuts import render, Http404, redirect, reverse
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.utils import IntegrityError
 from django.utils.timezone import now
 from django.contrib import messages
 
@@ -68,9 +69,24 @@ def login(req):
             user = User.objects.get(name=req.POST['username'])
             req.session['username'] = user.name
             return redirect(reverse('landing'))
-        except ObjectDoesNotExist:
+        except (ObjectDoesNotExist, ValueError):
             messages.add_message(req, messages.ERROR, "Wrong authentication data!")
             return render(req, "login.html", status=401)
+    else:
+        raise Http404
+
+
+def signup(req):
+    if req.method == 'GET':
+        return render(req, "signup.html")
+    elif req.method == 'POST':
+        try:
+            User.objects.create(name=req.POST['username'], email=req.POST['email'])
+            messages.add_message(req, messages.SUCCESS, "User created successfully!")
+            return redirect(reverse('landing'))
+        except (IntegrityError, ValueError):
+            messages.add_message(req, messages.ERROR, "Duplicate username!")
+            return redirect(reverse('signup'))
     else:
         raise Http404
 

@@ -21,6 +21,7 @@ urlpatterns = [
     path('', polls.views.landing, name="landing"),
     path('poll/', include(('polls.urls', 'polls'), namespace="poll")),
     path('login/', polls.views.login, name="login"),
+    path('signup/', polls.views.signup, name="signup"),
     path('logout/', polls.views.logout, name="logout"),
     path('admin/', admin.site.urls),
 ]

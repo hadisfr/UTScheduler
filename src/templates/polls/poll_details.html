@@ -5,7 +5,8 @@
 <ul>
 {% for choice in choices %}
 <li>
-    {{choice.choice.choice_text}}
+    <span>{{choice.choice.choice_text}}</span>&nbsp;
+    <a href="{% url 'poll:delete_choice' poll.id choice.choice.id %}" class="btn btn-danger btn-sm mb-2"><span class="far fa-minus-square"></span></a>
     <dl>
         {% for vote in choice.votes %}
         <dt>{{vote.text}}</dt>
@@ -19,15 +20,17 @@
 <form action="{% url 'poll:choice' poll.id %}" method="POST" class="form-inline">
     <label for="text" class="mr-sm-2">Choice:</label>
     <input type="text" class="form-control mb-2 mr-sm-2 mb-2" name="text" placeholder="Hamlet" id="text">
-    <button type="submit" class="btn btn-success mb-2">Add Choice</button>
+    <button type="submit" class="btn btn-success mb-2"><span class="far fa-plus-square"></span></button>
 </form>
 {% endif %}
 <h4>Involved People</h4>
 <ul>
-{% for user in involved_users %}
-<li>{{user.name}}</li>
-{% endfor %}
-</ul>
+    {% for user in involved_users %}
+    <li>
+        <span>{{user.name}}</span>&nbsp;
+        <a href="{% url 'poll:delete_user' poll.id user.name %}" class="btn btn-danger btn-sm mb-2"><span class="fas fa-user-minus"></span></a>
+    </li>
+    {% endfor %}
 </ul>
 {% if not closed %}
 <form action="{% url 'poll:user' poll.id %}" method="POST" class="form-inline">
@@ -38,7 +41,7 @@
         <option value="{{user.name}}">{{user.name}}</option>
         {% endfor %}
     </select>
-    <button type="submit" class="btn btn-success mb-2">Invlolve User</button>
+    <button type="submit" class="btn btn-success mb-2"><span class="fas fa-user-plus"></span></button>
 </form>
 {% endif %}
 {% if not closed %}

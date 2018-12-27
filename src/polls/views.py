@@ -212,3 +212,26 @@ def begin_poll(req, poll):
         return redirect(reverse('poll:show', kwargs={'poll_id': poll.id}))
     else:
         raise Http404
+
+
+@needs_ownership
+@only_open_polls
+def delete_choice(req, poll, choice_id):
+    try:
+        Choice.objects.get(id=choice_id).delete()
+    except (ObjectDoesNotExist):
+        raise Http404
+    messages.add_message(req, messages.SUCCESS, "Choice removed successfully!")
+    return redirect(reverse('poll:show', kwargs={'poll_id': poll.id}))
+
+
+@needs_ownership
+@only_open_polls
+def delete_user_from_poll(req, poll, user_name):
+    try:
+        this_audience = User.objects.get(name=user_name)
+    except (ObjectDoesNotExist):
+        raise Http404
+    poll.audience.remove(this_audience)
+    messages.add_message(req, messages.SUCCESS, "User removed successfully from poll!")
+    return redirect(reverse('poll:show', kwargs={'poll_id': poll.id}))

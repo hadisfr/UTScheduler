@@ -6,7 +6,7 @@ from ..models import User
 
 def provide_user(get_response):
     def middleware(request):
-        if request.path_info != reverse('login'):
+        if request.path_info != reverse('login') and request.path_info != reverse('admin:index'):
             try:
                 setattr(request, 'puser', User.objects.get(name=request.session['username']))
             except (ObjectDoesNotExist, ValueError):

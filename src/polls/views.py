@@ -151,10 +151,11 @@ def add_user_to_poll(req, poll):
         except (ObjectDoesNotExist, ValueError):
             raise Http404
         poll.audience.add(this_audience)
-        uri = req.build_absolute_uri()
-        uri = uri[:uri.rfind('/')]
-        nn = Notifier(Mail())
-        nn.notify_participate(req.puser, this_audience, uri)
+        Notifier(Mail()).notify_participate(
+            req.puser,
+            this_audience,
+            req.build_absolute_uri(reverse('poll:show', kwargs={'poll_id': poll.id}))
+        )
         messages.add_message(req, messages.SUCCESS, "User added successfully!")
         return redirect(reverse('poll:show', kwargs={'poll_id': poll.id}))
     else:

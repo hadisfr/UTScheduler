@@ -224,6 +224,12 @@ def begin_poll(req, poll):
         poll.chosen_choice = None
         poll.close_date = None
         poll.save()
+        for user in poll.audience.all():
+            Notifier(Mail()).notify_participate(
+                req.puser,
+                user,
+                req.build_absolute_uri(reverse('poll:show', kwargs={'poll_id': poll.id}))
+            )
         messages.add_message(req, messages.SUCCESS, "Poll reopened successfully!")
         return redirect(reverse('poll:show', kwargs={'poll_id': poll.id}))
     else:

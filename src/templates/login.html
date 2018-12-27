@@ -5,11 +5,11 @@
 <form action="{% url 'login' %}" method="POST">
     <div class="form-group">
         <label for="username">Username:</label>
-        <input type="text" class="form-control" name="username" placeholder="Hamlet">
+        <input type="text" class="form-control" name="username" placeholder="Hamlet" required>
     </div>
     <!-- <div class="form-group">
         <label for="password">Password:</label>
-        <input type="text" class="form-control" name="password" placeholder="T00b3">
+        <input type="password" class="form-control" name="password" placeholder="T00b3" required>
     </div> -->
     <button type="submit" class="btn btn-success btn-block">Login</button>
 </form>

@@ -19,7 +19,7 @@
 {% if not closed %}
 <form action="{% url 'poll:choice' poll.id %}" method="POST" class="form-inline">
     <label for="text" class="mr-sm-2">Choice:</label>
-    <input type="text" class="form-control mb-2 mr-sm-2 mb-2" name="text" placeholder="Hamlet" id="text">
+    <input type="text" class="form-control mb-2 mr-sm-2 mb-2" name="text" placeholder="Hamlet" required id="text">
     <button type="submit" class="btn btn-success mb-2"><span class="far fa-plus-square"></span></button>
 </form>
 {% endif %}
@@ -35,8 +35,8 @@
 {% if not closed %}
 <form action="{% url 'poll:user' poll.id %}" method="POST" class="form-inline">
     <label for="username" class="mr-sm-2">User:</label>
-    <select name="username" class="custom-select form-control mb-2 mr-sm-2 mb-2">
-        <option selected>Hamlet</option>
+    <select name="username" required class="custom-select form-control mb-2 mr-sm-2 mb-2">
+        <option disabled selected hidden>Hamlet</option>
         {% for user in users %}
         <option value="{{user.name}}">{{user.name}}</option>
         {% endfor %}
@@ -47,8 +47,8 @@
 {% if not closed %}
 <h4>Close Poll</h4>
 <form action="{% url 'poll:done' poll.id %}" method="POST" class="form-inline">
-    <select name="choice" class="custom-select form-control mb-2 mr-sm-2 mb-2">
-            <option selected>To be?</option>
+    <select name="choice" required class="custom-select form-control mb-2 mr-sm-2 mb-2">
+            <option disabled selected hidden>To be?</option>
             {% for choice in choices %}
             <option value="{{choice.choice.id}}">{{choice.choice.choice_text}}</option>
             {% endfor %}

@@ -10,7 +10,7 @@ def provide_user(get_response):
             try:
                 User.objects.get(name=request.session['username'])
                 return redirect(reverse('landing'))
-            except (ObjectDoesNotExist, ValueError):
+            except (ObjectDoesNotExist, ValueError, KeyError):
                 if request.session.get('username', None):
                     request.session['username'] = None
                     return redirect(reverse('login'))
@@ -19,7 +19,7 @@ def provide_user(get_response):
         elif request.path_info not in [reverse(url) for url in ['admin:index']]:
             try:
                 setattr(request, 'puser', User.objects.get(name=request.session['username']))
-            except (ObjectDoesNotExist, ValueError):
+            except (ObjectDoesNotExist, ValueError, KeyError):
                 return redirect(reverse('login'))
         response = get_response(request)
         return response

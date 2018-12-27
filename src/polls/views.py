@@ -69,7 +69,7 @@ def login(req):
             user = User.objects.get(name=req.POST['username'])
             req.session['username'] = user.name
             return redirect(reverse('landing'))
-        except (ObjectDoesNotExist, ValueError):
+        except (ObjectDoesNotExist, ValueError, KeyError):
             messages.add_message(req, messages.ERROR, "Wrong authentication data!")
             return render(req, "login.html", status=401)
     else:
@@ -84,7 +84,7 @@ def signup(req):
             User.objects.create(name=req.POST['username'], email=req.POST['email'])
             messages.add_message(req, messages.SUCCESS, "User created successfully!")
             return redirect(reverse('landing'))
-        except (IntegrityError, ValueError):
+        except (IntegrityError, ValueError, KeyError):
             messages.add_message(req, messages.ERROR, "Duplicate username!")
             return redirect(reverse('signup'))
     else:
@@ -164,7 +164,7 @@ def add_user_to_poll(req, poll):
     if req.method == 'POST':
         try:
             this_audience = User.objects.get(name=req.POST['username'])
-        except (ObjectDoesNotExist, ValueError):
+        except (ObjectDoesNotExist, ValueError, KeyError):
             raise Http404
         poll.audience.add(this_audience)
         Notifier(Mail()).notify_participate(
@@ -187,7 +187,7 @@ def vote(req, poll):
             if key.startswith(choice_prefix):
                 try:
                     choice = Choice.objects.get(id=key[len(choice_prefix):])
-                except (ObjectDoesNotExist, ValueError):
+                except (ObjectDoesNotExist, ValueError, KeyError):
                     raise Http404
                 if choice.poll != poll:
                     raise Http404
@@ -208,7 +208,7 @@ def end_poll(req, poll):
     if req.method == 'POST':
         try:
             poll.chosen_choice = Choice.objects.get(id=req.POST['choice'])
-        except (ObjectDoesNotExist, ValueError):
+        except (ObjectDoesNotExist, ValueError, KeyError):
             raise Http404
         poll.close_date = now()
         poll.save()

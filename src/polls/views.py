@@ -1,6 +1,7 @@
 from django.shortcuts import render, Http404, redirect, reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.timezone import now
+from django.contrib import messages
 
 from .models import User, Poll, Choice, Vote
 from .mail.mail import Mail
@@ -68,9 +69,8 @@ def login(req):
             req.session['username'] = user.name
             return redirect(reverse('landing'))
         except ObjectDoesNotExist:
-            return render(req, "login.html", {
-                "msg": "Wrong authentication data!",
-            }, status=401)
+            messages.add_message(req, messages.ERROR, "Wrong authentication data!")
+            return render(req, "login.html", status=401)
     else:
         raise Http404
 
@@ -86,7 +86,7 @@ def new_poll(req):
             return render(req, "polls/new_poll.html")
         elif req.method == 'POST':
             poll = Poll.objects.create(question_text=req.POST['question'], owner=req.puser)
-            req.session['msg'] = "Poll created successfully!"
+            messages.add_message(req, messages.SUCCESS, "Poll created successfully!")
             return redirect(reverse('poll:show', kwargs={'poll_id': poll.id}))
         else:
             raise Http404
@@ -136,7 +136,7 @@ def handle_poll(req, poll_id):
 def add_choice(req, poll):
     if req.method == 'POST':
         Choice.objects.create(poll=poll, choice_text=req.POST['text'])
-        req.session['msg'] = "Choice created successfully!"
+        messages.add_message(req, messages.SUCCESS, "Choice created successfully!")
         return redirect(reverse('poll:show', kwargs={'poll_id': poll.id}))
     else:
         raise Http404
@@ -155,7 +155,7 @@ def add_user_to_poll(req, poll):
         uri = uri[:uri.rfind('/')]
         nn = Notifier(Mail())
         nn.notify_participate(req.puser, this_audience, uri)
-        req.session['msg'] = "User added successfully!"
+        messages.add_message(req, messages.SUCCESS, "User added successfully!")
         return redirect(reverse('poll:show', kwargs={'poll_id': poll.id}))
     else:
         raise Http404
@@ -179,7 +179,7 @@ def vote(req, poll):
                     choice=choice,
                     defaults={'vote': {key: value for (value, key) in Vote.VOTE_T}[req.POST[key]]},
                 )
-        req.session['msg'] = "Voted successfully!"
+        messages.add_message(req, messages.SUCCESS, "Voted successfully!")
         return redirect(reverse('poll:show', kwargs={'poll_id': poll.id}))
     else:
         raise Http404
@@ -195,7 +195,7 @@ def end_poll(req, poll):
             raise Http404
         poll.close_date = now()
         poll.save()
-        req.session['msg'] = "Poll closed successfully!"
+        messages.add_message(req, messages.SUCCESS, "Poll closed successfully!")
         return redirect(reverse('poll:show', kwargs={'poll_id': poll.id}))
     else:
         raise Http404
@@ -207,7 +207,7 @@ def begin_poll(req, poll):
         poll.chosen_choice = None
         poll.close_date = None
         poll.save()
-        req.session['msg'] = "Poll reopened successfully!"
+        messages.add_message(req, messages.SUCCESS, "Poll reopened successfully!")
         return redirect(reverse('poll:show', kwargs={'poll_id': poll.id}))
     else:
         raise Http404

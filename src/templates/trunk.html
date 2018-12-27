@@ -19,7 +19,11 @@
         {% endif %}
     </ul></div>
     <div class="container">
-        {% if msg %}<div class="msg"><span class="fas fa-comment-alt"></span>&nbsp;<span>{{msg}}</span><span class="x fas fa-times-circle" onclick="hide_msg(this);"></span></div>{% endif %}
+        {% if messages %}
+            {% for message in messages %}
+            <div class="msg {% if message.tags %} msg-{{ message.tags }}{% endif %}"><span class="fas fa-comment-alt"></span>&nbsp;<span>{{ message }}</span><span class="x fas fa-times-circle" onclick="hide_msg(this);"></span></div>
+            {% endfor %}
+        {% endif %}
         {% block content %}
         {% endblock %}
     </div>

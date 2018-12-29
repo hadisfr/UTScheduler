@@ -5,8 +5,11 @@
 <ul>
 {% for choice in choices %}
 <li>
-    <span>{{choice.choice.choice_text}}</span>&nbsp;
+    <span>{{choice.choice.choice_text}}</span>
+    {% if not closed %}
+    &nbsp;
     <a href="{% url 'poll:delete_choice' poll.id choice.choice.id %}" class="btn btn-danger btn-sm mb-2"><span class="far fa-minus-square"></span></a>
+    {% endif %}
     <dl>
         {% for vote in choice.votes %}
         <dt>{{vote.text}}</dt>
@@ -27,8 +30,11 @@
 <ul>
     {% for user in involved_users %}
     <li>
-        <span>{{user.name}}</span>&nbsp;
+        <span>{{user.name}}</span>
+        {% if not closed %}
+        &nbsp;
         <a href="{% url 'poll:delete_user' poll.id user.name %}" class="btn btn-danger btn-sm mb-2"><span class="fas fa-user-minus"></span></a>
+        {% endif %}
     </li>
     {% endfor %}
 </ul>

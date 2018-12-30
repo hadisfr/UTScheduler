@@ -40,3 +40,9 @@ class Vote(models.Model):
 
     class Meta:
         unique_together = (("voter", "choice"),)
+
+
+class Comment(models.Model):
+    choice = models.ForeignKey('Choice', on_delete=models.CASCADE)
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True)
+    comment_text = models.CharField(max_length=400)

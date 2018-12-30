@@ -4,7 +4,7 @@ from django.db.utils import IntegrityError
 from django.utils.timezone import now
 from django.contrib import messages
 
-from .models import User, Poll, Choice, Vote, TextChoice
+from .models import User, Poll, Choice, Vote, TextChoice, Comment
 from .mail.mail import Mail
 from .mail.notifier import Notifier
 
@@ -257,3 +257,18 @@ def delete_user_from_poll(req, poll, user_name):
     poll.audience.remove(this_audience)
     messages.add_message(req, messages.SUCCESS, "User removed successfully from poll!")
     return redirect(reverse('poll:show', kwargs={'poll_id': poll.id}))
+
+
+@needs_involvement
+@only_open_polls
+def add_comment(req, poll, choice_id):
+    if req.method == 'POST':
+        try:
+            choice =Choice.objects.get(id=choice_id)
+        except (ObjectDoesNotExist):
+            raise Http404
+        Comment.objects.create(choice=choice, comment_text=req.POST["comment_text"])
+        messages.add_message(req, messages.SUCCESS, "Comment added successfully to choice!")
+        return redirect(reverse('poll:show', kwargs={'poll_id': poll.id}))
+    else:
+        raise Http404

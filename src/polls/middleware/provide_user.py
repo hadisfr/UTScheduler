@@ -6,6 +6,8 @@ from ..models import User
 
 def provide_user(get_response):
     def middleware(request):
+        if request.path_info.startswith(reverse('admin:index')):
+            return get_response(request)
         if request.path_info in [reverse(url) for url in ['login', 'signup']]:
             try:
                 User.objects.get(name=request.session['username'])

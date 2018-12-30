@@ -13,11 +13,19 @@ class Poll(models.Model):
     pub_date = models.DateTimeField(auto_now_add=True)
     close_date = models.DateTimeField(null=True)
     chosen_choice = models.ForeignKey('Choice', on_delete=models.CASCADE, null=True, related_name="chosen")
+    isTimed = models.BooleanField(null=True, default=False)
 
 
 class Choice(models.Model):
     poll = models.ForeignKey(Poll, on_delete=models.CASCADE)
+
+
+class TextChoice(Choice):
     choice_text = models.CharField(max_length=200)
+
+
+class TimedChoice(Choice):
+    choice_text = models.DateTimeField()
 
 
 class Vote(models.Model):

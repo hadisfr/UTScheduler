@@ -21,11 +21,11 @@ class Choice(models.Model):
 
 
 class TextChoice(Choice):
-    choice_text = models.CharField(max_length=200)
+    content = models.CharField(max_length=200)
 
 
 class TimedChoice(Choice):
-    choice_text = models.DateTimeField()
+    content = models.DateTimeField()
 
 
 class Vote(models.Model):

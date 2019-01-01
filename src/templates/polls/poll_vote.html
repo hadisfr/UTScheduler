@@ -10,7 +10,7 @@
         {% for choice in choices %}
         <li class="form-group">
             <div class="form-check-inline">
-                {{choice.choice.textchoice.choice_text}}
+                {{choice.choice.textchoice.content}}
             </div>
             {% for vote in possible_votes %}
             <div class="form-check-inline">

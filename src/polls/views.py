@@ -121,7 +121,7 @@ def handle_poll_for_owner(req, poll):
         "involved_users": User.objects.filter(poll=poll),
         "users": User.objects.exclude(poll=poll).exclude(owner=poll),
         "closed": is_poll_closed(poll),
-        "chosen": poll.chosen_choice.textchoice.choice_text if is_poll_closed(poll) else ""
+        "chosen": poll.chosen_choice.textchoice.content if is_poll_closed(poll) else ""
     })
 
 
@@ -136,7 +136,7 @@ def handle_poll_for_audience(req, poll):
                     for choice in Choice.objects.filter(poll=poll)],
         "possible_votes": [vote[1] for vote in Vote.VOTE_T],
         "closed": is_poll_closed(poll),
-        "chosen": poll.chosen_choice.choice_text if is_poll_closed(poll) else ""
+        "chosen": poll.chosen_choice.content if is_poll_closed(poll) else ""
     })
 
 
@@ -151,7 +151,7 @@ def handle_poll(req, poll_id):
 @only_open_polls
 def add_choice(req, poll):
     if req.method == 'POST':
-        TextChoice.objects.create(poll=poll, choice_text=req.POST['text'])
+        TextChoice.objects.create(poll=poll, content=req.POST['text'])
         messages.add_message(req, messages.SUCCESS, "Choice created successfully!")
         return redirect(reverse('poll:show', kwargs={'poll_id': poll.id}))
     else:

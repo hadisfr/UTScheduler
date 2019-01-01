@@ -7,6 +7,12 @@
         <label for="question">Poll:</label>
         <input type="text" class="form-control" name="question" required placeholder="To be or not to be?">
     </div>
+    <label for="type" class="mr-sm-2">Poll Type:</label>
+    <select name="type" required class="custom-select form-control mb-2 mr-sm-2 mb-2">
+        {% for type in types %}
+        <option value="{{type.0}}">{{type.1}}</option>
+        {% endfor %}
+    </select>
     <button type="submit" class="btn btn-success btn-block">Add Poll</button>
 </form> 
 {% endblock %}

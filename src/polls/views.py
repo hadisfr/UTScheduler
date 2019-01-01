@@ -99,9 +99,9 @@ def logout(req):
 def new_poll(req):
     try:
         if req.method == 'GET':
-            return render(req, "polls/new_poll.html")
+            return render(req, "polls/new_poll.html", {'types': Poll.POLL_T})
         elif req.method == 'POST':
-            poll = Poll.objects.create(question_text=req.POST['question'], owner=req.puser)
+            poll = Poll.objects.create(question_text=req.POST['question'], owner=req.puser, poll_type=req.POST['type'])
             messages.add_message(req, messages.SUCCESS, "Poll created successfully!")
             return redirect(reverse('poll:show', kwargs={'poll_id': poll.id}))
         else:

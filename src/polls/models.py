@@ -13,7 +13,12 @@ class Poll(models.Model):
     pub_date = models.DateTimeField(auto_now_add=True)
     close_date = models.DateTimeField(null=True)
     chosen_choice = models.ForeignKey('Choice', on_delete=models.CASCADE, null=True, related_name="chosen")
-    isTimed = models.BooleanField(null=True, default=False)
+    POLL_T = (
+        (0, 'Textual'),
+        (1, 'Timed'),
+        (2, 'Recurring'),
+    )
+    poll_type = models.IntegerField(choices=POLL_T, default=0)
 
 
 class Choice(models.Model):

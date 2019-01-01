@@ -5,7 +5,7 @@
 <ul>
 {% for choice in choices %}
 <li>
-    <span>{{choice.choice.content}}</span>
+    <span>{{choice.choice.textchoice.content}}</span>
     {% if not closed %}
     &nbsp;
     <a href="{% url 'poll:delete_choice' poll.id choice.choice.id %}" class="btn btn-danger btn-sm mb-2"><span class="far fa-minus-square"></span></a>

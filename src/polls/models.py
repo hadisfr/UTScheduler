@@ -30,7 +30,8 @@ class TextChoice(Choice):
 
 
 class TimedChoice(Choice):
-    content = models.DateTimeField()
+    start_date = models.DateTimeField(null=True)
+    end_data = models.DateTimeField(null=True)
 
 
 class Vote(models.Model):

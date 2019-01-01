@@ -21,8 +21,28 @@
 </ul>
 {% if not closed %}
 <form action="{% url 'poll:choice' poll.id %}" method="POST" class="form-inline">
+    {% if poll.poll_type == poll.POLL_T_TEXTUAL %}
     <label for="text" class="mr-sm-2">Choice:</label>
     <input type="text" class="form-control mb-2 mr-sm-2 mb-2" name="text" placeholder="Hamlet" required id="text">
+    {% elif poll.poll_type == poll.POLL_T_TIMED %}
+    <label for="start-date" class="mr-sm-2">Start:</label>
+    <input type="date" class="form-control mb-2 mr-sm-2 mb-2" name="start-date" required id="start-date">
+    <input type="time" class="form-control mb-2 mr-sm-2 mb-2" name="start-time" required id="start-time">
+    <label for="end-date" class="mr-sm-2">End:</label>
+    <input type="date" class="form-control mb-2 mr-sm-2 mb-2" name="end-date" required id="end-date">
+    <input type="time" class="form-control mb-2 mr-sm-2 mb-2" name="end-time" required id="end-time">
+    {% elif poll.poll_type == poll.POLL_T_RECURRING %}
+    <select name="weekday" required class="custom-select form-control mb-2 mr-sm-2 mb-2">
+        <option disabled selected hidden>Funday</option>
+        {% for weekday in weekdays %}
+        <option value="{{weekday.0}}">{{weekday.1}}</option>
+        {% endfor %}
+    </select>
+    <label for="start-date" class="mr-sm-2">Start:</label>
+    <input type="time" class="form-control mb-2 mr-sm-2 mb-2" name="start-time" required id="start-time">
+    <label for="end-date" class="mr-sm-2">End:</label>
+    <input type="time" class="form-control mb-2 mr-sm-2 mb-2" name="end-time" required id="end-time">
+    {% endif %}
     <button type="submit" class="btn btn-success mb-2"><span class="far fa-plus-square"></span></button>
 </form>
 {% endif %}

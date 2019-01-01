@@ -4,7 +4,7 @@ from django.db.utils import IntegrityError
 from django.utils.timezone import now
 from django.contrib import messages
 
-from .models import User, Poll, Choice, Vote, TextChoice, Comment
+from .models import User, Poll, Choice, Vote, TextChoice, TimedChoice, RecurringChoice, Comment
 from .mail.mail import Mail
 from .mail.notifier import Notifier
 
@@ -121,7 +121,8 @@ def handle_poll_for_owner(req, poll):
         "involved_users": User.objects.filter(poll=poll),
         "users": User.objects.exclude(poll=poll).exclude(owner=poll),
         "closed": is_poll_closed(poll),
-        "chosen": poll.chosen_choice if is_poll_closed(poll) else ""
+        "chosen": poll.chosen_choice if is_poll_closed(poll) else "",
+        "weekdays": RecurringChoice.WEEKDAYS
     })
 
 

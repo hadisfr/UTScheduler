@@ -6,10 +6,9 @@ from ..models import User
 
 def provide_user(get_response):
     def middleware(request):
-        if (
-                not request.path_info.startswith(reverse('admin:index'))
-                and request.path_info in [reverse(url) for url in ['login', 'signup']]
-        ):
+        if request.path_info.startswith(reverse('admin:index')):
+            return get_response(request)
+        if request.path_info in [reverse(url) for url in ['login', 'signup']]:
             try:
                 User.objects.get(name=request.session['username'])
                 return redirect(reverse('landing'))
@@ -19,6 +18,11 @@ def provide_user(get_response):
                     return redirect(reverse('login'))
                 else:
                     return get_response(request)
+        elif request.path_info.split('/')[0] not in [reverse(url) for url in ['admin:index']]:
+            try:
+                setattr(request, 'puser', User.objects.get(name=request.session['username']))
+            except (ObjectDoesNotExist, ValueError, KeyError):
+                return redirect(reverse('login'))
         response = get_response(request)
         return response
 

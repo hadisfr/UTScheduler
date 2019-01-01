@@ -13,10 +13,13 @@ class Poll(models.Model):
     pub_date = models.DateTimeField(auto_now_add=True)
     close_date = models.DateTimeField(null=True)
     chosen_choice = models.ForeignKey('Choice', on_delete=models.CASCADE, null=True, related_name="chosen")
+    POLL_T_TEXTUAL = 0
+    POLL_T_TIMED = 1
+    POLL_T_RECURRING = 2
     POLL_T = (
-        (0, 'Textual'),
-        (1, 'Timed'),
-        (2, 'Recurring'),
+        (POLL_T_TEXTUAL, 'Textual'),
+        (POLL_T_TIMED, 'Timed'),
+        (POLL_T_RECURRING, 'Recurring'),
     )
     poll_type = models.IntegerField(choices=POLL_T, default=0)
 
@@ -24,9 +27,22 @@ class Poll(models.Model):
 class Choice(models.Model):
     poll = models.ForeignKey(Poll, on_delete=models.CASCADE)
 
+    def __str__(self):
+        if self.poll.poll_type == Poll.POLL_T_TEXTUAL:
+            return str(self.textchoice)
+        elif self.poll.poll_type == Poll.POLL_T_TIMED:
+            return str(self.timedchoice)
+        elif self.poll.poll_type == Poll.POLL_T_RECURRING:
+            return str(self.timedchoice)
+        else:
+            raise NotImplementedError()
+
 
 class TextChoice(Choice):
     content = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.content
 
 
 class TimedChoice(Choice):

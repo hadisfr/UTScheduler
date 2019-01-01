@@ -34,6 +34,21 @@ class TimedChoice(Choice):
     end_data = models.DateTimeField(null=True)
 
 
+class RecurringChoice(Choice):
+    WEEKDAYS = (
+        (0, 'Saturday'),
+        (1, 'Sunday'),
+        (2, 'Monday'),
+        (3, 'Tuesday'),
+        (4, 'Wednesday'),
+        (5, 'Thursday'),
+        (6, 'Friday'),
+    )
+    weekday = models.IntegerField(choices=WEEKDAYS)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+
+
 class Vote(models.Model):
     VOTE_T = (
         (1, 'Yes'),

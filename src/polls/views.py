@@ -121,7 +121,7 @@ def handle_poll_for_owner(req, poll):
         "involved_users": User.objects.filter(poll=poll),
         "users": User.objects.exclude(poll=poll).exclude(owner=poll),
         "closed": is_poll_closed(poll),
-        "chosen": poll.chosen_choice.textchoice.content if is_poll_closed(poll) else ""
+        "chosen": poll.chosen_choice if is_poll_closed(poll) else ""
     })
 
 

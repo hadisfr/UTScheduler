@@ -25,11 +25,11 @@
     <label for="text" class="mr-sm-2">Choice:</label>
     <input type="text" class="form-control mb-2 mr-sm-2 mb-2" name="text" placeholder="Hamlet" required id="text">
     {% elif poll.poll_type == poll.POLL_T_TIMED %}
-    <label for="start-date" class="mr-sm-2">Start:</label>
+    <label for="start-date" class="mr-sm-2">On:</label>
     <input type="date" class="form-control mb-2 mr-sm-2 mb-2" name="start-date" required id="start-date">
+    <label for="start-date" class="mr-sm-2">Start time:</label>
     <input type="time" class="form-control mb-2 mr-sm-2 mb-2" name="start-time" required id="start-time">
-    <label for="end-date" class="mr-sm-2">End:</label>
-    <input type="date" class="form-control mb-2 mr-sm-2 mb-2" name="end-date" required id="end-date">
+    <label for="start-date" class="mr-sm-2">End time:</label>
     <input type="time" class="form-control mb-2 mr-sm-2 mb-2" name="end-time" required id="end-time">
     {% elif poll.poll_type == poll.POLL_T_RECURRING %}
     <select name="weekday" required class="custom-select form-control mb-2 mr-sm-2 mb-2">

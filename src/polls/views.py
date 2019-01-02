@@ -3,6 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.utils import IntegrityError
 from django.utils.timezone import now
 from django.contrib import messages
+from datetime import datetime
 
 from .models import User, Poll, Choice, Vote, TextChoice, TimedChoice, RecurringChoice, Comment
 from .mail.mail import Mail
@@ -152,7 +153,17 @@ def handle_poll(req, poll_id):
 @only_open_polls
 def add_choice(req, poll):
     if req.method == 'POST':
-        TextChoice.objects.create(poll=poll, content=req.POST['text'])
+        if poll.poll_type == Poll.POLL_T_TEXTUAL:
+            TextChoice.objects.create(poll=poll, content=req.POST['text'])
+        elif poll.poll_type == Poll.POLL_T_TIMED:
+            try:
+                start_datetime = datetime.strptime(req.POST['start-date'] + ' ' + req.POST['start-time'],
+                    '%Y-%m-%d %H:%M')
+                end_datetime = datetime.strptime(req.POST['start-date'] + ' ' + req.POST['end-time'],
+                    '%Y-%m-%d %H:%M')
+                TimedChoice.objects.create(poll=poll, start_date=start_datetime, end_date=end_datetime)
+            except Exception as e:
+                raise e
         messages.add_message(req, messages.SUCCESS, "Choice created successfully!")
         return redirect(reverse('poll:show', kwargs={'poll_id': poll.id}))
     else:

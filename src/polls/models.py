@@ -50,7 +50,7 @@ class TimedChoice(Choice):
     end_date = models.DateTimeField(null=True)
 
     def __str__(self):
-        return 'From ' + str(self.start_date.strftime('%Y-%m-%d %H:%m'))
+        return 'On: ' + str(self.start_date.strftime('%Y-%m-%d')) + ', from ' + str(self.start_date.strftime('%H:%m')) + ' to ' + str(self.end_date.strftime('%H:%m'))
 
 
 class RecurringChoice(Choice):

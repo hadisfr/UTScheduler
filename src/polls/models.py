@@ -47,18 +47,21 @@ class TextChoice(Choice):
 
 class TimedChoice(Choice):
     start_date = models.DateTimeField(null=True)
-    end_data = models.DateTimeField(null=True)
+    end_date = models.DateTimeField(null=True)
+
+    def __str__(self):
+        return 'From ' + str(self.start_date.strftime('%Y-%m-%d %H:%m'))
 
 
 class RecurringChoice(Choice):
     WEEKDAYS = (
-        (0, 'Saturday'),
-        (1, 'Sunday'),
-        (2, 'Monday'),
-        (3, 'Tuesday'),
-        (4, 'Wednesday'),
-        (5, 'Thursday'),
-        (6, 'Friday'),
+        (5, 'Saturday'),
+        (6, 'Sunday'),
+        (0, 'Monday'),
+        (1, 'Tuesday'),
+        (2, 'Wednesday'),
+        (3, 'Thursday'),
+        (4, 'Friday'),
     )
     weekday = models.IntegerField(choices=WEEKDAYS)
     start_time = models.TimeField()

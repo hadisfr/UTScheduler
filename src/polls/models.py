@@ -33,7 +33,7 @@ class Choice(models.Model):
         elif self.poll.poll_type == Poll.POLL_T_TIMED:
             return str(self.timedchoice)
         elif self.poll.poll_type == Poll.POLL_T_RECURRING:
-            return str(self.timedchoice)
+            return str(self.recurringchoice)
         else:
             raise NotImplementedError()
 
@@ -55,17 +55,20 @@ class TimedChoice(Choice):
 
 class RecurringChoice(Choice):
     WEEKDAYS = (
-        (5, 'Saturday'),
-        (6, 'Sunday'),
         (0, 'Monday'),
         (1, 'Tuesday'),
         (2, 'Wednesday'),
         (3, 'Thursday'),
         (4, 'Friday'),
+        (5, 'Saturday'),
+        (6, 'Sunday'),
     )
     weekday = models.IntegerField(choices=WEEKDAYS)
     start_time = models.TimeField()
     end_time = models.TimeField()
+
+    def __str__(self):
+        return 'Every ' + str(self.WEEKDAYS[self.weekday][1]) + ', from ' + str(self.start_time.strftime('%H:%M')) + ' to ' + str(self.end_time.strftime('%H:%M'))
 
 
 class Vote(models.Model):

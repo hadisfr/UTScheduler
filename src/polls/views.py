@@ -153,6 +153,8 @@ def handle_poll(req, poll_id):
 @only_open_polls
 def add_choice(req, poll):
     if req.method == 'POST':
+        status = messages.SUCCESS
+        status_msg = "Choice created successfully!"
         if poll.poll_type == Poll.POLL_T_TEXTUAL:
             TextChoice.objects.create(poll=poll, content=req.POST['text'])
         elif poll.poll_type == Poll.POLL_T_TIMED:
@@ -161,10 +163,25 @@ def add_choice(req, poll):
                     '%Y-%m-%d %H:%M')
                 end_datetime = datetime.strptime(req.POST['start-date'] + ' ' + req.POST['end-time'],
                     '%Y-%m-%d %H:%M')
+                if start_datetime >= end_datetime:
+                    raise Exception
                 TimedChoice.objects.create(poll=poll, start_date=start_datetime, end_date=end_datetime)
             except Exception as e:
-                raise e
-        messages.add_message(req, messages.SUCCESS, "Choice created successfully!")
+                status = messages.ERROR
+                status_msg = "Wrong datetime format!"
+        elif poll.poll_type == Poll.POLL_T_RECURRING:
+            try:
+                start_time = datetime.strptime(req.POST['start-time'], '%H:%M').time()
+                end_time = datetime.strptime(req.POST['end-time'], '%H:%M').time()
+                weekday = int(req.POST['weekday'])
+                if start_time >= end_time or weekday < 0 or weekday > 6:
+                    raise Exception
+                RecurringChoice.objects.create(poll=poll, weekday=weekday, start_time=start_time, end_time=end_time)
+            except Exception as e:
+                status = messages.ERROR
+                status_msg = "Wrong time format!"
+
+        messages.add_message(req, status, status_msg)
         return redirect(reverse('poll:show', kwargs={'poll_id': poll.id}))
     else:
         raise Http404
@@ -195,7 +212,9 @@ def add_user_to_poll(req, poll):
 def vote(req, poll):
     choice_prefix = 'vote_'
     if req.method == 'POST':
-        for key in req.POST:
+        status = messages.SUCCESS
+        status_msg = "Voted successfully!"
+        for idx, key in enumerate(req.POST):
             if key.startswith(choice_prefix):
                 try:
                     choice = Choice.objects.get(id=key[len(choice_prefix):])
@@ -208,7 +227,29 @@ def vote(req, poll):
                     choice=choice,
                     defaults={'vote': {key: value for (value, key) in Vote.VOTE_T}[req.POST[key]]},
                 )
-        messages.add_message(req, messages.SUCCESS, "Voted successfully!")
+                if {key: value for (value, key) in Vote.VOTE_T}[req.POST[key]] == 1:
+                    other_votes = Vote.objects.filter(voter=req.puser, vote=1)
+                    for other_vote in other_votes:
+                        choice_overlap = False
+                        if other_vote.choice == choice:
+                            continue
+                        if poll.poll_type == Poll.POLL_T_TIMED:
+                            if other_vote.choice.poll.poll_type == Poll.POLL_T_TIMED:
+                                if choice.timedchoice.overlaps(other_vote.choice.timedchoice):
+                                    choice_overlap = True
+                            else:
+                                choice_overlap = True
+                        elif poll.poll_type == Poll.POLL_T_RECURRING:
+                            if other_vote.choice.poll.poll_type == Poll.POLL_T_TIMED:
+                                choice_overlap = True
+                            else:
+                                choice_overlap = True
+                        if choice_overlap:
+                            if status == messages.SUCCESS:
+                                status_msg = ""
+                            status = messages.WARNING
+                            status_msg += ' Choice ' + str(idx + 1) + ' clashes with \"' + str(other_vote.choice) + '\" from vote \"' + str(other_vote.choice.poll) + '\".'
+        messages.add_message(req, status, status_msg)
         return redirect(reverse('poll:show', kwargs={'poll_id': poll.id}))
     else:
         raise Http404

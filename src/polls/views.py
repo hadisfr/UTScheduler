@@ -336,9 +336,24 @@ def get_comments(req, poll, choice_id):
     return render(req, "polls/choice_comments.html", {
         "poll": poll,
         "choice": choice,
-        "comments": Comment.objects.filter(choice=choice)
+        "comments": Comment.objects.filter(choice=choice, parent=None)
     })
 
+
+@needs_involvement_or_ownership
+@only_open_polls
+def get_replies(req, poll, choice_id, comment_id):
+    try:
+        choice =Choice.objects.get(id=choice_id)
+        comment = Comment.objects.get(id=comment_id)
+    except (ObjectDoesNotExist):
+        raise Http404
+    return render(req, "polls/comment_replies.html", {
+        "poll": poll,
+        "choice": choice,
+        "comment": comment,
+        "replies": Comment.objects.filter(choice=choice, parent=comment)
+    })
 
 
 @needs_involvement_or_ownership
@@ -367,7 +382,7 @@ def reply_to_comment(req, poll, choice_id, comment_id):
             raise Http404
         Comment.objects.create(choice=choice, parent=comment, comment_text=req.POST["comment_text"])
         messages.add_message(req, messages.SUCCESS, "reply added successfully!")
-        return redirect(reverse('poll:show', kwargs={'poll_id': poll.id}))
+        return redirect(reverse('poll:replies', kwargs={'poll_id': poll.id, 'choice_id': choice_id, 'comment_id': comment.id}))
     else:
         raise Http404
 

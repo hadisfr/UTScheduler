@@ -4,9 +4,10 @@
 <h4>Poll Closed With:</h4>
 <h6>{{chosen}}</h6>
 {% else %}
-<h3>comments: {{choice}}</h3>
+<h2>comments: {{choice}}</h2>
+<h4>replies: {{comment.comment_text}}</h4>
 <ul>
-    {% for comment in comments %}
+    {% for comment in replies %}
         <li class="form-group">
             <a href="{% url 'poll:replies' poll.id choice.id comment.id%}" class="btn btn-primary btn-sm mb-2"><span class="far fa-comment"></span></a>
             <div class="form-check-inline">
@@ -16,9 +17,9 @@
     {% endfor %}
     </ul>
 
-    <form action="{% url 'poll:add_comment' poll.id choice.id%}" method="POST">
+    <form action="{% url 'poll:reply_to_comment' poll.id choice.id comment.id %}" method="POST">
         <input type="text" class="form-control mb-2 mr-sm-2 mb-2" name="comment_text" required placeholder="Hi there!">
-        <button type="submit" class="btn btn-success btn-block">Add Comment</button>
+        <button type="submit" class="btn btn-success btn-block">Add Reply</button>
     </form>
 
 {% endif %}

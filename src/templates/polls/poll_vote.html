@@ -9,6 +9,7 @@
     <ul>
         {% for choice in choices %}
         <li class="form-group">
+            <a href="{% url 'poll:comments' poll.id choice.choice.id %}" class="btn btn-primary btn-sm mb-2"><span class="far fa-comment"></span></a>
             <div class="form-check-inline">
                 {{choice.choice}}
             </div>

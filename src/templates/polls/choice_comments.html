@@ -1,0 +1,24 @@
+{% extends '../trunk.html' %}
+{% block content %}
+{% if closed %}
+<h4>Poll Closed With:</h4>
+<h6>{{chosen}}</h6>
+{% else %}
+<h3>comments: {{choice}}</h3>
+<ul>
+    {% for comment in comments %}
+        <li class="form-group">
+            <div class="form-check-inline">
+                {{comment.comment_text}}
+            </div>
+        </li>
+    {% endfor %}
+    </ul>
+
+    <form action="{% url 'poll:add_comment' poll.id choice.id%}" method="POST">
+        <input type="text" class="form-control mb-2 mr-sm-2 mb-2" name="comment_text" required placeholder="Hi there!">
+        <button type="submit" class="btn btn-success btn-block">Add Comment</button>
+    </form>
+
+{% endif %}
+{% endblock %}

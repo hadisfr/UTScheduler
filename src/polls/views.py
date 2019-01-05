@@ -328,6 +328,21 @@ def delete_user_from_poll(req, poll, user_name):
 
 @needs_involvement_or_ownership
 @only_open_polls
+def get_comments(req, poll, choice_id):
+    try:
+        choice =Choice.objects.get(id=choice_id)
+    except (ObjectDoesNotExist):
+        raise Http404
+    return render(req, "polls/choice_comments.html", {
+        "poll": poll,
+        "choice": choice,
+        "comments": Comment.objects.filter(choice=choice)
+    })
+
+
+
+@needs_involvement_or_ownership
+@only_open_polls
 def add_comment(req, poll, choice_id):
     if req.method == 'POST':
         try:
@@ -336,7 +351,7 @@ def add_comment(req, poll, choice_id):
             raise Http404
         Comment.objects.create(choice=choice, comment_text=req.POST["comment_text"])
         messages.add_message(req, messages.SUCCESS, "Comment added successfully to choice!")
-        return redirect(reverse('poll:show', kwargs={'poll_id': poll.id}))
+        return redirect(reverse('poll:comments', kwargs={'poll_id': poll.id, 'choice_id': choice_id}))
     else:
         raise Http404
 

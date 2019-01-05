@@ -9,6 +9,7 @@
     {% if not closed %}
     &nbsp;
     <a href="{% url 'poll:delete_choice' poll.id choice.choice.id %}" class="btn btn-danger btn-sm mb-2"><span class="far fa-minus-square"></span></a>
+    <a href="{% url 'poll:comments' poll.id choice.choice.id %}" class="btn btn-primary btn-sm mb-2"><span class="far fa-comment"></span></a>
     {% endif %}
     <dl>
         {% for vote in choice.votes %}

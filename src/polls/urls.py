@@ -12,4 +12,6 @@ urlpatterns = [
     path('<int:poll_id>/vote', polls.views.vote, name="vote"),
     path('<int:poll_id>/done', polls.views.end_poll, name="done"),
     path('<int:poll_id>/reopen', polls.views.begin_poll, name="reopen"),
+    path('<int:poll_id>/choice/<int:choice_id>/comment', polls.views.add_comment, name="add_comment"),
+    path('<int:poll_id>/choice/<int:choice_id>/comment/<int:comment_id>/reply', polls.views.reply_to_comment, name="reply_to_comment"),
 ]

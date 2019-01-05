@@ -10,6 +10,20 @@ from .mail.mail import Mail
 from .mail.notifier import Notifier
 
 
+# todo: should refactor or combine with involvement
+def needs_involvement_or_ownership(func):
+    def involvement_or_ownership_checked_func(req, poll_id, *args, **kwargs):
+        try:
+            poll = Poll.objects.get(id=poll_id)
+        except ObjectDoesNotExist:
+            raise Http404
+        if poll and (poll.audience.filter(name=req.puser.name).exists() or poll.owner == req.puser):
+            return func(req, poll, *args, **kwargs)
+        else:
+            raise Http404
+
+    return involvement_or_ownership_checked_func
+
 def needs_involvement(func):
     def involvement_checked_func(req, poll_id, *args, **kwargs):
         try:
@@ -312,7 +326,7 @@ def delete_user_from_poll(req, poll, user_name):
     return redirect(reverse('poll:show', kwargs={'poll_id': poll.id}))
 
 
-@needs_involvement
+@needs_involvement_or_ownership
 @only_open_polls
 def add_comment(req, poll, choice_id):
     if req.method == 'POST':
@@ -325,3 +339,20 @@ def add_comment(req, poll, choice_id):
         return redirect(reverse('poll:show', kwargs={'poll_id': poll.id}))
     else:
         raise Http404
+
+
+@needs_involvement_or_ownership
+@only_open_polls
+def reply_to_comment(req, poll, choice_id, comment_id):
+    if req.method == 'POST':
+        try:
+            choice =Choice.objects.get(id=choice_id)
+            comment = Comment.objects.get(id=comment_id)
+        except (ObjectDoesNotExist):
+            raise Http404
+        Comment.objects.create(choice=choice, parent=comment, comment_text=req.POST["comment_text"])
+        messages.add_message(req, messages.SUCCESS, "reply added successfully!")
+        return redirect(reverse('poll:show', kwargs={'poll_id': poll.id}))
+    else:
+        raise Http404
+

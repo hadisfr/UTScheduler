@@ -4,6 +4,7 @@ from django.db import models
 class User(models.Model):
     name = models.CharField(max_length=40, primary_key=True)
     email = models.EmailField()
+    isRegistered = models.BooleanField(default=False)
 
 
 class Poll(models.Model):

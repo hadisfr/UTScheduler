@@ -11,3 +11,6 @@ class Notifier:
     def notify_participate(self, owner, participate, url):
         message = Notifier.create_email_message(url)
         self.mail.send_email(Notifier.subject, message, owner.email, participate.email)
+
+    def reg_user(self, participate, url):
+        self.mail.send_email(Notifier.subject, "register to UTScheduler\n" + url, None, participate.email)

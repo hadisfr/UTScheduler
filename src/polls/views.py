@@ -81,7 +81,7 @@ def login(req):
         return render(req, "login.html")
     elif req.method == 'POST':
         try:
-            user = User.objects.get(name=req.POST['username'])
+            user = User.objects.get(name=req.POST['username'], isRegistered=True)
             req.session['username'] = user.name
             return redirect(reverse('landing'))
         except (ObjectDoesNotExist, ValueError, KeyError):
@@ -96,14 +96,29 @@ def signup(req):
         return render(req, "signup.html")
     elif req.method == 'POST':
         try:
-            User.objects.create(name=req.POST['username'], email=req.POST['email'])
-            messages.add_message(req, messages.SUCCESS, "User created successfully!")
-            return redirect(reverse('landing'))
+            User.objects.create(name=req.POST['username'], email=req.POST['email'], isRegistered=False)
+            Notifier(Mail()).reg_user(
+                User.objects.get(name=req.POST['username']),
+                req.build_absolute_uri(reverse('validate_email', kwargs={'username': User.objects.get(name=req.POST['username']).name}))
+            )
+            messages.add_message(req, messages.SUCCESS, "User created successfully! Please validate your email")
+            return redirect(reverse('login'))
         except (IntegrityError, ValueError, KeyError):
             messages.add_message(req, messages.ERROR, "Duplicate username!")
             return redirect(reverse('signup'))
     else:
         raise Http404
+
+
+def validate_email(req, username):
+    try:
+        user = User.objects.get(name=username)
+    except (ObjectDoesNotExist):
+        raise Http404
+    user.isRegistered = True
+    user.save()
+    messages.add_message(req, messages.SUCCESS, "User validate successfully.")
+    return redirect(reverse('login'))
 
 
 def logout(req):
@@ -133,8 +148,8 @@ def handle_poll_for_owner(req, poll):
             {"text": opt[1], "num": Vote.objects.filter(choice=choice, vote=opt[0]).count()}
             for opt in Vote.VOTE_T
         ]} for choice in Choice.objects.filter(poll=poll)],
-        "involved_users": User.objects.filter(poll=poll),
-        "users": User.objects.exclude(poll=poll).exclude(owner=poll),
+        "involved_users": User.objects.filter(poll=poll, isRegistered=True),
+        "users": User.objects.exclude(poll=poll).exclude(owner=poll).filter(isRegistered=True),
         "closed": is_poll_closed(poll),
         "chosen": poll.chosen_choice if is_poll_closed(poll) else "",
         "weekdays": RecurringChoice.WEEKDAYS
@@ -206,7 +221,7 @@ def add_choice(req, poll):
 def add_user_to_poll(req, poll):
     if req.method == 'POST':
         try:
-            this_audience = User.objects.get(name=req.POST['username'])
+            this_audience = User.objects.get(name=req.POST['username'], isRegistered=True)
         except (ObjectDoesNotExist, ValueError, KeyError):
             raise Http404
         poll.audience.add(this_audience)
@@ -318,7 +333,7 @@ def delete_choice(req, poll, choice_id):
 @only_open_polls
 def delete_user_from_poll(req, poll, user_name):
     try:
-        this_audience = User.objects.get(name=user_name)
+        this_audience = User.objects.get(name=user_name, isRegistered=True)
     except (ObjectDoesNotExist):
         raise Http404
     poll.audience.remove(this_audience)

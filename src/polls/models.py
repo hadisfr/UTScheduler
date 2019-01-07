@@ -58,7 +58,8 @@ class TimedChoice(Choice):
             if (self.start_date <= other.start_date <= self.end_date) or (
                 self.start_date <= other.end_date <= self.end_date) or (
                 other.start_date <= self.start_date <= other.end_date) or (
-                other.start_date <= self.end_date <= other.end_date):
+                other.start_date <= self.end_date <= other.end_date
+            ):
                 return True
             return False
         elif other.__class__ == RecurringChoice:
@@ -66,12 +67,14 @@ class TimedChoice(Choice):
                 if (self.start_date.time() <= other.start_time <= self.end_date.time()) or (
                     self.start_date.time() <= other.end_time <= self.end_date.time()) or (
                     other.start_time <= self.start_date.time() <= other.end_time) or (
-                    other.start_time <= self.end_date.time() <= other.end_time):
+                    other.start_time <= self.end_date.time() <= other.end_time
+                ):
                         return True
             return False
 
     def __str__(self):
-        return 'On: ' + str(self.start_date.strftime('%Y-%m-%d')) + ', ' + str(self.start_date.strftime('%H:%m')) + ' to ' + str(self.end_date.strftime('%H:%m'))
+        return ('On: ' + str(self.start_date.strftime('%Y-%m-%d')) + ', ' + str(self.start_date.strftime('%H:%m'))
+                + ' to ' + str(self.end_date.strftime('%H:%m')))
 
 
 class RecurringChoice(Choice):
@@ -94,7 +97,8 @@ class RecurringChoice(Choice):
                 if (self.start_time <= other.start_date.time() <= self.end_time) or (
                     self.start_time <= other.end_date.time() <= self.end_time) or (
                     other.start_date.time() <= self.start_time <= other.end_date.time()) or (
-                    other.start_date.time() <= self.end_time <= other.end_date.time()):
+                    other.start_date.time() <= self.end_time <= other.end_date.time()
+                ):
                     return True
             return False
         elif other.__class__ == RecurringChoice:
@@ -102,12 +106,14 @@ class RecurringChoice(Choice):
                 if (self.start_time <= other.start_time <= self.end_time) or (
                     self.start_time <= other.end_time <= self.end_time) or (
                     other.start_time <= self.start_time <= other.end_time) or (
-                    other.start_time <= self.end_time <= other.end_time):
+                    other.start_time <= self.end_time <= other.end_time
+                ):
                         return True
             return False
 
     def __str__(self):
-        return 'Every ' + str(self.WEEKDAYS[self.weekday][1]) + ', ' + str(self.start_time.strftime('%H:%M')) + ' to ' + str(self.end_time.strftime('%H:%M'))
+        return ('Every ' + str(self.WEEKDAYS[self.weekday][1]) + ', ' + str(self.start_time.strftime('%H:%M'))
+                + ' to ' + str(self.end_time.strftime('%H:%M')))
 
 
 class Vote(models.Model):

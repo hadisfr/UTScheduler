@@ -37,11 +37,10 @@ class EmailTest(TestCase):
 
     def test_notifier_valid_users_text_generated_properly(self):
         send_mail("ssss", "shshsh", "emad.jabbarnk@gmail.com", ["m.taiaranian@gmail.com"], fail_silently=False,)
-        val = self.ntf.notify_participate(User.objects.get(email="emad@gmail.com"), User.objects.get(email="m.taiaranian@gmail.com"), self.link)
         self.assertEqual(self.ml.ef, "emad@gmail.com")
         self.assertEqual(self.ml.et, "m.taiaranian@gmail.com")
         self.assertEqual(self.ml.sub, "UTScheduler")
-        self.assertEqual(self.ml.msg, "you are involved in a poll:\n"+self.link)
+        self.assertEqual(self.ml.msg, "you are involved in a poll:\n" + self.link)
 
 
 class OverLapTest(TestCase):
@@ -49,7 +48,6 @@ class OverLapTest(TestCase):
         self.owner = User.objects.create(name="owner", email="emad.jabbarnk@gmail.com")
         self.rec_poll = Poll.objects.create(question_text='dummy_recurring', owner=self.owner, poll_type=2)
         self.tim_poll = Poll.objects.create(question_text='dummy_Timed', owner=self.owner, poll_type=1)
-
 
     def create_timed_choice(self, st1, et1):
         st_d1 = datetime.strptime(st1, '%Y-%m-%d %H:%M')
@@ -122,7 +120,6 @@ class OverLapTest(TestCase):
         choice_one = self.create_recurring_choice('13:20', '14:10', 2)
         choice_two = self.create_timed_choice('2019-01-09' + ' ' + '13:00', '2019-01-09' + ' ' + '14:00')
         self.assertTrue(choice_one.overlaps(choice_two), "recurring choice should have overlap")
-
 
     def test_recurring_choice_have_no_overlap_with_timed_choice_same_day_should_return_false(self):
         choice_one = self.create_recurring_choice('16:20', '17:10', 2)

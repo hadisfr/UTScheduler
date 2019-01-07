@@ -24,6 +24,7 @@ def needs_involvement_or_ownership(func):
 
     return involvement_or_ownership_checked_func
 
+
 def needs_involvement(func):
     def involvement_checked_func(req, poll_id, *args, **kwargs):
         try:
@@ -99,7 +100,9 @@ def signup(req):
             User.objects.create(name=req.POST['username'], email=req.POST['email'], isRegistered=False)
             Notifier(Mail()).reg_user(
                 User.objects.get(name=req.POST['username']),
-                req.build_absolute_uri(reverse('validate_email', kwargs={'username': User.objects.get(name=req.POST['username']).name}))
+                req.build_absolute_uri(reverse('validate_email', kwargs={
+                    'username': User.objects.get(name=req.POST['username']).name
+                }))
             )
             messages.add_message(req, messages.SUCCESS, "User created successfully! Please validate your email")
             return redirect(reverse('login'))
@@ -189,13 +192,13 @@ def add_choice(req, poll):
         elif poll.poll_type == Poll.POLL_T_TIMED:
             try:
                 start_datetime = datetime.strptime(req.POST['start-date'] + ' ' + req.POST['start-time'],
-                    '%Y-%m-%d %H:%M')
+                                                   '%Y-%m-%d %H:%M')
                 end_datetime = datetime.strptime(req.POST['start-date'] + ' ' + req.POST['end-time'],
-                    '%Y-%m-%d %H:%M')
+                                                 '%Y-%m-%d %H:%M')
                 if start_datetime >= end_datetime:
                     raise Exception
                 TimedChoice.objects.create(poll=poll, start_date=start_datetime, end_date=end_datetime)
-            except Exception as e:
+            except Exception:
                 status = messages.ERROR
                 status_msg = "Wrong datetime format!"
         elif poll.poll_type == Poll.POLL_T_RECURRING:
@@ -206,7 +209,7 @@ def add_choice(req, poll):
                 if start_time >= end_time or weekday < 0 or weekday > 6:
                     raise Exception
                 RecurringChoice.objects.create(poll=poll, weekday=weekday, start_time=start_time, end_time=end_time)
-            except Exception as e:
+            except Exception:
                 status = messages.ERROR
                 status_msg = "Wrong time format!"
 
@@ -277,7 +280,8 @@ def vote(req, poll):
                             if status == messages.SUCCESS:
                                 status_msg = ""
                             status = messages.WARNING
-                            status_msg += ' Choice ' + str(idx + 1) + ' clashes with \"' + str(other_vote.choice) + '\" from vote \"' + str(other_vote.choice.poll) + '\".'
+                            status_msg += (' Choice ' + str(idx + 1) + ' clashes with \"' + str(other_vote.choice)
+                                           + '\" from vote \"' + str(other_vote.choice.poll) + '\".')
         messages.add_message(req, status, status_msg)
         return redirect(reverse('poll:show', kwargs={'poll_id': poll.id}))
     else:
@@ -345,7 +349,7 @@ def delete_user_from_poll(req, poll, user_name):
 @only_open_polls
 def get_comments(req, poll, choice_id):
     try:
-        choice =Choice.objects.get(id=choice_id)
+        choice = Choice.objects.get(id=choice_id)
     except (ObjectDoesNotExist):
         raise Http404
     return render(req, "polls/choice_comments.html", {
@@ -359,7 +363,7 @@ def get_comments(req, poll, choice_id):
 @only_open_polls
 def get_replies(req, poll, choice_id, comment_id):
     try:
-        choice =Choice.objects.get(id=choice_id)
+        choice = Choice.objects.get(id=choice_id)
         comment = Comment.objects.get(id=comment_id)
     except (ObjectDoesNotExist):
         raise Http404
@@ -376,7 +380,7 @@ def get_replies(req, poll, choice_id, comment_id):
 def add_comment(req, poll, choice_id):
     if req.method == 'POST':
         try:
-            choice =Choice.objects.get(id=choice_id)
+            choice = Choice.objects.get(id=choice_id)
         except (ObjectDoesNotExist):
             raise Http404
         Comment.objects.create(choice=choice, comment_text=req.POST["comment_text"])
@@ -391,13 +395,16 @@ def add_comment(req, poll, choice_id):
 def reply_to_comment(req, poll, choice_id, comment_id):
     if req.method == 'POST':
         try:
-            choice =Choice.objects.get(id=choice_id)
+            choice = Choice.objects.get(id=choice_id)
             comment = Comment.objects.get(id=comment_id)
         except (ObjectDoesNotExist):
             raise Http404
         Comment.objects.create(choice=choice, parent=comment, comment_text=req.POST["comment_text"])
         messages.add_message(req, messages.SUCCESS, "reply added successfully!")
-        return redirect(reverse('poll:replies', kwargs={'poll_id': poll.id, 'choice_id': choice_id, 'comment_id': comment.id}))
+        return redirect(reverse('poll:replies', kwargs={
+            'poll_id': poll.id,
+            'choice_id': choice_id,
+            'comment_id': comment.id
+        }))
     else:
         raise Http404
-
